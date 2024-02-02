@@ -1,0 +1,15 @@
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=SG][CASE=GEN][POSS=SG1]	pakkaseni
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=SG][CASE=GEN][POSS=SG2]	pakkasesi
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=SG][CASE=GEN][POSS=PL1]	pakkasemme
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=SG][CASE=GEN][POSS=PL2]	pakkasenne
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=SG][CASE=GEN][POSS=3]	pakkasensa
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=SG1]	pakkasieni
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=SG1]	pakkasteni
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=SG2]	pakkasiesi
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=SG2]	pakkastesi
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=PL1]	pakkasiemme
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=PL1]	pakkastemme
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=PL2]	pakkasienne
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=PL2]	pakkastenne
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=3]	pakkasiensa
+[WORD_ID=pakkanen][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=3]	pakkastensa

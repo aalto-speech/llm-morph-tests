@@ -1,0 +1,12 @@
+[WORD_ID=huurre][UPOS=NOUN][NUM=SG][CASE=ABL][POSS=SG1]	huurteeltani
+[WORD_ID=huurre][UPOS=NOUN][NUM=SG][CASE=ABL][POSS=SG2]	huurteeltasi
+[WORD_ID=huurre][UPOS=NOUN][NUM=SG][CASE=ABL][POSS=PL1]	huurteeltamme
+[WORD_ID=huurre][UPOS=NOUN][NUM=SG][CASE=ABL][POSS=PL2]	huurteeltanne
+[WORD_ID=huurre][UPOS=NOUN][NUM=SG][CASE=ABL][POSS=3]	huurteeltaan
+[WORD_ID=huurre][UPOS=NOUN][NUM=SG][CASE=ABL][POSS=3]	huurteeltansa
+[WORD_ID=huurre][UPOS=NOUN][NUM=PL][CASE=ABL][POSS=SG1]	huurteiltani
+[WORD_ID=huurre][UPOS=NOUN][NUM=PL][CASE=ABL][POSS=SG2]	huurteiltasi
+[WORD_ID=huurre][UPOS=NOUN][NUM=PL][CASE=ABL][POSS=PL1]	huurteiltamme
+[WORD_ID=huurre][UPOS=NOUN][NUM=PL][CASE=ABL][POSS=PL2]	huurteiltanne
+[WORD_ID=huurre][UPOS=NOUN][NUM=PL][CASE=ABL][POSS=3]	huurteiltaan
+[WORD_ID=huurre][UPOS=NOUN][NUM=PL][CASE=ABL][POSS=3]	huurteiltansa

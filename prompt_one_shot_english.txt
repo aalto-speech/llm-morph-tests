@@ -1,0 +1,36 @@
+Classify Finnish words in the following morphological categories:
+
+A. singular or plural
+
+B. grammatical case; the Finnish grammatical cases are:
+- Nominative
+- Genitive
+- Accusative
+- Partitive
+- Inessive
+- Elative
+- Illative
+- Abessive
+- Ablative
+- Adessive
+- Allative
+- Essive
+- Translative
+- Marginal
+- Instructive
+- Comitative
+
+C. possessive suffix; one of the six classes:
+- first person singular
+- first person plural
+- second person singular
+- second person plural
+- third person singular
+- third person plural
+
+
+Word: vedessään
+Classification: vesi, singular, Inessive, first person singular
+
+Word: huurteitasi
+Classification: huurre, 

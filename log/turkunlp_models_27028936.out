@@ -1,0 +1,9 @@
+Loading model /scratch/elec/morphogen/Poro-34B...
+Traceback (most recent call last):
+  File "/scratch/elec/morphogen/segment-test-suite/turkunlp_models.py", line 10, in <module>
+    model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+  File "/home/moisioa3/.conda/envs/hf23/lib/python3.10/site-packages/transformers/models/auto/auto_factory.py", line 464, in from_pretrained
+    return model_class.from_pretrained(
+  File "/home/moisioa3/.conda/envs/hf23/lib/python3.10/site-packages/transformers/modeling_utils.py", line 2164, in from_pretrained
+    raise EnvironmentError(
+OSError: Error no file named pytorch_model.bin, tf_model.h5, model.ckpt.index or flax_model.msgpack found in directory /scratch/elec/morphogen/Poro-34B.

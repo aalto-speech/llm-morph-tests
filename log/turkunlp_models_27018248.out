@@ -1,0 +1,98 @@
+Loading model /scratch/elec/morphogen/gpt3-finnish-13B...
+Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s]Loading checkpoint shards:  17%|█▋        | 1/6 [00:21<01:46, 21.25s/it]Loading checkpoint shards:  33%|███▎      | 2/6 [00:44<01:29, 22.45s/it]Loading checkpoint shards:  50%|█████     | 3/6 [01:07<01:07, 22.62s/it]Loading checkpoint shards:  67%|██████▋   | 4/6 [01:29<00:45, 22.58s/it]Loading checkpoint shards:  83%|████████▎ | 5/6 [01:50<00:21, 21.87s/it]Loading checkpoint shards: 100%|██████████| 6/6 [02:01<00:00, 18.13s/it]Loading checkpoint shards: 100%|██████████| 6/6 [02:01<00:00, 20.23s/it]
+The prompt is:
+Luokittele nämä suomenkieliset sanat:
+
+vedessään
+huurteitasi
+kaistaksenne
+kaistoinamme
+kinoksieni
+kinokseenne
+
+
+seuraaviin morfologisiin luokkiin:
+
+A. yksikkö vai monikko
+
+B. sijamuoto; suomen sijamuodot ovat:
+- nominatiivi
+- genitiivi
+- akkusatiivi
+- partitiivi
+- inessiivi
+- elatiivi
+- illatiivi
+- abessiivi
+- ablatiivi
+- adessiivi
+- allatiivi
+- essiivi
+- translatiivi
+- instruktiivi
+- komitatiivi
+
+C. persoonamuoto:
+- yksikön ensimmäinen persoona
+- monikon ensimmäinen persoona
+- yksikön toinen persoona
+- monikon toinen persoona
+- yksikön kolmas persoona
+- monikon kolmas persoona
+
+
+Sana: vedessään
+Luokittelu: vesi, yksikkö, inessiivi, yksikön ensimmäinen persoona
+
+Sana: huurteitasi
+Luokittelu: 
+The generated text is:
+Luokittele nämä suomenkieliset sanat:
+
+vedessään
+huurteitasi
+kaistaksenne
+kaistoinamme
+kinoksieni
+kinokseenne
+
+
+seuraaviin morfologisiin luokkiin:
+
+A. yksikkö vai monikko
+
+B. sijamuoto; suomen sijamuodot ovat:
+- nominatiivi
+- genitiivi
+- akkusatiivi
+- partitiivi
+- inessiivi
+- elatiivi
+- illatiivi
+- abessiivi
+- ablatiivi
+- adessiivi
+- allatiivi
+- essiivi
+- translatiivi
+- instruktiivi
+- komitatiivi
+
+C. persoonamuoto:
+- yksikön ensimmäinen persoona
+- monikon ensimmäinen persoona
+- yksikön toinen persoona
+- monikon toinen persoona
+- yksikön kolmas persoona
+- monikon kolmas persoona
+
+
+Sana: vedessään
+Luokittelu: vesi, yksikkö, inessiivi, yksikön ensimmäinen persoona
+
+Sana: huurteitasi
+Luokittelu:  h o  u r t e i t a s i
+ Sana: kinoksistanne
+ Luokitt: Kinos, partisiippi, genetiivi, mon. 1. persoona, akku- ja par. mon.
+
+Sana : kaista

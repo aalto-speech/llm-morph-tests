@@ -1,0 +1,37 @@
+Classify the following Finnish words
+huurteitasi
+kinoksillensa
+kaistattani
+
+in the following morphological categories:
+
+A. singular or plural
+
+B. grammatical case; the Finnish grammatical cases are:
+- Nominative
+- Genitive
+- Accusative
+- Partitive
+- Inessive
+- Elative
+- Illative
+- Abessive
+- Ablative
+- Adessive
+- Allative
+- Essive
+- Translative
+- Marginal
+- Instructive
+- Comitative
+
+C. possessive suffix; one of the six classes:
+- first person singular
+- first person plural
+- second person singular
+- second person plural
+- third person singular
+- third person plural
+
+Answer with only the correct classes with no other explanations, for example:
+vedessään: singular, Inessive, first person singular
