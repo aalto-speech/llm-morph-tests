@@ -1,0 +1,2 @@
+SG  ykksikkö    singular
+PL  monikko     plural

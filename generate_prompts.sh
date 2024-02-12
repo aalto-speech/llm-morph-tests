@@ -2,24 +2,10 @@
 
 expt=$1
 expt_dir="expts/${expt}"
-config_file="${expt_dir}/config.sh"
-
-. ${config_file}
-
-
-# inflect lemmas with omorfi-generate.sh
-cd omorfi
-bash ../omorfi-inflect/permute-case-number-person.sh \
-    ../${expt_dir}/lemmas.txt \
-    ../${expt_dir}/cases.txt \
-    ../${expt_dir}/numbers.txt \
-    ../${expt_dir}/persons.txt \
-    ../inflected
-
-cd ..
 
 # generate llm prompts from templates
-template_file=${expt_dir}/prompts/templates/pt_short_2shot_english.sh
+template_name=pt_short_2shot_english
+template_file=${expt_dir}/prompts/templates/${template_name}.sh
 
 get_sample () {
     first_eg=$( cat inflected/*.txt | shuf -n 1 )
@@ -43,11 +29,10 @@ answer2=$answer
 get_sample
 word_form3=$word_form
 
-
+mkdir -p ${expt_dir}/prompts/generated/${template_name}
 bash $template_file \
     "$word_form1" "$answer1" \
     "$word_form2" "$answer2" \
-    "$word_form3" "$lemma"
+    "$word_form3" "$lemma" >> ${expt_dir}/prompts/generated/${template_name}/${word_form3}.input
 
-echo ""
-echo "$answer"
+echo "$number $gcase $possessive" >> ${expt_dir}/prompts/generated/${template_name}/${word_form3}.ref

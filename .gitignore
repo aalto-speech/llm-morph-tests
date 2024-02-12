@@ -2,3 +2,6 @@
 llms
 omorfi
 omorfi-inflect/data
+inflected
+*.input
+*.ref

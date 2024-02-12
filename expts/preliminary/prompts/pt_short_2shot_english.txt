@@ -1,0 +1,13 @@
+Classify Finnish words in the following morphological categories:
+A. singular or plural
+B. grammatical case;
+C. possessive suffix;
+
+Word: vedessään
+Classification: vesi, singular, inessive, first person singular
+
+Word: kinoksiltani
+Classification: kinos, plural, ablative, first person singular
+
+Word: vedettänne
+Classification: vesi,
