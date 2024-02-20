@@ -32,3 +32,6 @@ python generate_test_sets.py
 ```
 python sample_test_sets.py
 ```
+
+### TODO
+- tarkista onko sg/pl sama, tai muut muodot

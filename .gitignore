@@ -5,3 +5,5 @@ omorfi-inflect/data
 inflected
 *.input
 *.ref
+log
+data

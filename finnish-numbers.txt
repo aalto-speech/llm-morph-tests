@@ -1,2 +1,2 @@
-SG  ykksikkö    singular
-PL  monikko     plural
+SG-     yksikkö-    singular
+PL-     monikko-    plural

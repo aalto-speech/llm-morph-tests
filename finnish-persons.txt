@@ -1,9 +1,9 @@
-SG1     yksikön ensimmäinen persoona    first person singular
-SG2     yksikön toinen persoona         second person singular
-SG3     yksikön kolmas persoona         third person singular
-PL1     monikon ensimmäinen persoona    first person plural
-PL2     monikon toinen persoona         second person plural
-PL3     monikon kolmas persoona         third person plural
-1       ensimmäinen persoona            first person
-2       toinen persoona                 second person
-3       kolmas persoona                 third person
+SG1-    yksikön ensimmäinen persoona-   first person singular
+SG2-    yksikön toinen persoona-        second person singular
+SG3-    yksikön kolmas persoona-        third person singular
+PL1-    monikon ensimmäinen persoona-   first person plural
+PL2-    monikon toinen persoona-        second person plural
+PL3-    monikon kolmas persoona-        third person plural
+1-      ensimmäinen persoona-           first person
+2-      toinen persoona-                second person
+3-      kolmas persoona-                third person

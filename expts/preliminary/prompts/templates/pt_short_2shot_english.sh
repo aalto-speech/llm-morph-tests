@@ -22,5 +22,5 @@ Word: ${second_eg_word}
 Classification: ${second_eg_word_answer}
 
 Word: ${test_word}
-Classification: ${test_word_answer}, 
+Classification: ${test_word_answer},
 EOF

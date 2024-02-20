@@ -18,36 +18,30 @@ bash ../omorfi-inflect/permute-case-number-person.sh \
 
 cd ..
 
-# generate llm prompts from templates
-template_file=${expt_dir}/prompts/templates/pt_short_2shot_english.sh
+# generate prompts
+for template in $(ls ${expt_dir}/prompts/templates); do
+    bash generate_prompts.sh $expt ${template%.sh}
+done
 
-get_sample () {
-    first_eg=$( cat inflected/*.txt | shuf -n 1 )
+# format prompts for llama
+python llama_json.py \
+    ${expt_dir}/prompts/generated/pt_short_2shot_finnish/*.input \
+    ${expt_dir}/prompts/generated/pt_short_2shot_finnish/all_inputs.json
+python llama_json.py \
+    ${expt_dir}/prompts/generated/pt_short_2shot_finnish/*.ref \
+    ${expt_dir}/prompts/generated/pt_short_2shot_finnish/all_refs.json
 
-    word_form=$(echo $first_eg | awk '{print $2}')
-    lemma=$(echo $first_eg | grep -o -P '(?<=WORD_ID=).*?(?=])')
-    number=$(echo $first_eg | grep -o -P '(?<=NUM=).*?(?=])')
-    gcase=$(echo $first_eg | grep -o -P '(?<=CASE=).*?(?=])')
-    possessive=$(echo $first_eg | grep -o -P '(?<=POSS=).*?(?=])')
-    
-    answer="$lemma $number $gcase $possessive"
-}
+# run batch inference
+sbatch triton_module_models.sh \
+    expts/preliminary/prompts/generated/pt_short_2shot_finnish/all_inputs_48.json
 
-# parse tags
-get_sample
-word_form1=$word_form
-answer1=$answer
-get_sample
-word_form2=$word_form
-answer2=$answer
-get_sample
-word_form3=$word_form
+# evaluate
+python llama_results.py \
+    --refs expts/preliminary/prompts/generated/pt_short_2shot_finnish/all_refs_{0,16,32}.json \
+    --preds expts/preliminary/prompts/generated/pt_short_2shot_finnish/llama_preds_{0,16,32}.out \
+    --out llama-7b-results.txt
 
-
-bash $template_file \
-    "$word_form1" "$answer1" \
-    "$word_form2" "$answer2" \
-    "$word_form3" "$lemma"
-
-echo ""
-echo "$answer"
+python llama_results.py \
+    --refs expts/preliminary/prompts/generated/pt_short_2shot_finnish/all_refs_{0,16,32}.json \
+    --preds expts/preliminary/prompts/generated/pt_short_2shot_finnish/llama_13b_preds_{0,16,32}.out \
+    --out llama-13b-results.txt
