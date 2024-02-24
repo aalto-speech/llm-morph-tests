@@ -1,9 +1,15 @@
 # external repos
 llms
 omorfi
+unimorph
+MorphyNet
+
+# data
 omorfi-inflect/data
 inflected
 *.input
 *.ref
-log
 data
+
+# other
+log

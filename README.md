@@ -2,12 +2,30 @@
 
 ### Generating the test sets
 - select a set of lemmas that are used
-    - consider e.g. the frequencies of the lemmas in the training data
+    - consider
+        - frequencies of the lemmas
+        - frequencies of the morphological feats
+        - frequencies of the morphological forms
 - select the morphological categories that are used
     - initial categories:
-        - number (singular, plural)
-        - possessive suffix (1/2/3 person singular/plural)
-        - grammatical case (nominative, accusative, genitive, etc.)
+        - nouns:
+            - number (singular, plural)
+            - possessive suffix (1/2/3 person singular/plural)
+            - grammatical case (nominative, accusative, genitive, etc.)
+        - verbs:
+            - tense (present, past, etc.)
+            - mood (indicative, conditional, etc.)
+            - person (1/2/3)
+            - number (singular, plural)
+            - voice (active, passive)
+            - verb type (transitive, intransitive)
+        - adjectives:
+            - degree (positive, comparative, superlative)
+            - number (singular, plural)
+            - case (nominative, accusative, genitive, etc.)
+        - adverbs:
+            - degree (positive, comparative, superlative)
+            - case (nominative, accusative, genitive, etc.)
 - generate the inflected forms for the lemmas
     - use the HFST tools (omorfi for Finnish)
 - design the prompts for the test sets
