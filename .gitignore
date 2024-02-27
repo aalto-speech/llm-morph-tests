@@ -1,15 +1,15 @@
 # external repos
 llms
 omorfi
-unimorph
-MorphyNet
 
 # data
 omorfi-inflect/data
 inflected
 *.input
 *.ref
-data
+*.pkl
+data/corpora
+lemma2feats*
 
 # other
 log

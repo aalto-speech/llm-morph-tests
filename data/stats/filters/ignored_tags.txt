@@ -1,0 +1,4 @@
+Degree=Pos
+Reflex=Yes
+PronType=
+Derivation=

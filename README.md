@@ -2,10 +2,17 @@
 
 ### Generating the test sets
 - select a set of lemmas that are used
-    - consider
-        - frequencies of the lemmas
-        - frequencies of the morphological feats
-        - frequencies of the morphological forms
+    - take a random sample of the shortlisted lemmas
+    - consider frequencies of the
+        - lemmas
+            - from lemma_freqs.txt file
+        - morphological feats
+            - from feats_freqs.txt file
+        - morphological forms
+            - from word_freqs.txt file
+    - consider also diversity of the forms for lemma?
+        - from lemma2feats.pkl file
+
 - select the morphological categories that are used
     - initial categories:
         - nouns:

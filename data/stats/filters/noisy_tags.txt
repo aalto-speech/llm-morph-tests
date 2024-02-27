@@ -1,0 +1,6 @@
+Typo
+Abbr
+Style
+Foreign
+NumType
+AdpType
