@@ -1,8 +1,11 @@
 import argparse
 import ast
+import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--preds", help="files with predictions", nargs="+")
+parser.add_argument("--preds-include-prompt", action="store_true",
+                    help="the preds include the prompt, so it should be removed")
 parser.add_argument("--refs", help="files with references", nargs="+")
 parser.add_argument("--out", help="output file")
 args = parser.parse_args()
@@ -11,6 +14,10 @@ preds = []
 for file in args.preds:
     with open(file, "r", encoding="utf-8") as f:
         preds += ast.literal_eval(f.readlines()[-1])
+
+if args.preds_include_prompt:
+    with open('expts/preliminary/prompts/inputs_0.json', "r", encoding="utf-8") as f:
+        prompts = json.load(f)
 
 refs = []
 for file in args.refs:

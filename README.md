@@ -50,6 +50,34 @@
     - sample the inflected forms
     - sample the prompts
 
+
+### Experiments to run
+
+- languages:
+    - Finnish
+    - Turkish
+    - English?
+- for each language
+    - x nouns
+    - x verbs
+- prompts:
+    - 1-shot
+    - 3-shot
+    - 5-shot
+- models:
+    - Llama2-70b
+    - Poro-34b (Finnish)
+    - ChatGPT-4
+
+- statistical analysis:
+    - factors:
+        - frequency of lemma
+        - frequency of feats
+        - frequency of word form
+        - number of different forms of lemma
+
+- confusion matrix of feats
+
 ### Scripts
 - `generate_test_sets.py`: script to generate the test sets, usage:
 ```

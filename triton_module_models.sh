@@ -40,3 +40,17 @@ do
         --temperature 0.3 --max_gen_len 50 \
         --output_file ${prompt%.json}_llama2.jsonl
 done
+
+
+# model_name = "meta-llama/Llama-2-70b-chat-hf"
+# tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=huggingface_token, cache_dir="cache")
+# model = LlamaForCausalLM.from_pretrained(model_name, 
+#                                          use_auth_token=huggingface_token, 
+#                                          cache_dir="cache",
+#                                          torch_dtype=torch.float16,
+#                                          device_map="auto")
+# model.eval()
+# # check model device
+# print(model.device)
+# print(model.hf_device_map)
+# print(model.generation_config)

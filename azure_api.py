@@ -9,13 +9,26 @@ For all endpoints see https://www.aalto.fi/en/services/azure-openai#6-available-
 import httpx, os
 from openai import OpenAI
 import argparse
+import json
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("--prompt-file", type=str,)
 args = argparser.parse_args()
 
 with open(args.prompt_file, "r", encoding='utf-8') as f:
-    prompt = f.read()
+    prompts = json.load(f)
+
+converted_prompts = []
+for prompt in prompts:
+    converted_prompts.append(
+            {
+                "role": "user",
+                "content": prompt,
+                }
+            )
+print(converted_prompts)
+exit()
+
 
 def update_base_url(request: httpx.Request) -> None:
     if request.url.path == "/chat/completions":
@@ -36,12 +49,13 @@ client = OpenAI(
 
 completion = client.chat.completions.create(
         model="no_effect", # the model variable must be set, but has no effect, URL defines model
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-                }
-            ],
+        # messages=[
+        #     {
+        #         "role": "user",
+        #         "content": prompt,
+        #         }
+        #     ],
+        messages=converted_prompts,
         )
 
 print(completion)

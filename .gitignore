@@ -8,8 +8,13 @@ inflected
 *.input
 *.ref
 *.pkl
+*.jsonl
+*.json
 data/corpora
 lemma2feats*
 
 # other
 log
+data/stats
+data/inflected_1000_nouns
+__pycache__
