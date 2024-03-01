@@ -1,12 +1,13 @@
 #/bin/bash
 
+
 # to run this script:
 # bash ../omorfi-inflect/permute-case-number-person.sh \
-#     ../expts/preliminary/lemmas.txt \
+#     ../data/stats/lemma_freqs.NOUN.txt.shortlist.random1000.plain \
 #     ../expts/preliminary/cases.txt \
 #     ../expts/preliminary/numbers.txt \
 #     ../expts/preliminary/persons.txt \
-#     ../expts/preliminary/inflected
+#     ../data/inflected_1000_nouns
 
 lemmas=$1
 cases=$2
@@ -22,19 +23,24 @@ do
         do
             for person in $(cat $persons)
             do
-                output_file="${output_dir}/${lemma}-${case}.txt"
+                # output_file="${output_dir}/${lemma}-${case}.txt"
                 omorstring="[WORD_ID=${lemma}][UPOS=NOUN][NUM=${number}][CASE=${case}][POSS=${person}]"
                 # skip if omorstring in output file
-                if [ ! -f $output_file ] || ! grep -qF "$omorstring" $output_file;
-                then
-                    echo "$omorstring"
-                    printf "$omorstring" | bash src/bash/omorfi-generate.sh | \
-                        grep WORD_ID=${lemma} | cut -f 1,2 \
-                        >> $output_file
-                fi
+                # if [ ! -f $output_file ] || ! grep -qF "$omorstring" $output_file;
+                # then
+                echo "$omorstring" >> $output_dir/omorstrings.txt
+                # fi
             done
         done
     done
+done
+
+for lemma in $(cat $lemmas)
+do
+    bash src/bash/omorfi-generate.sh \
+        $output_dir/omorstrings.txt | \
+        grep WORD_ID=${lemma} | cut -f 1,2 \
+        >> $output_dir/inflected.txt
 done
 
 #  grep -v inf |

@@ -4,9 +4,8 @@
 #SBATCH --mem=30GB
 #SBATCH --partition dgx-spa
 #SBATCH --gres=gpu:2
-#SBATCH --output=log/llama2inference-gpu.%J.out
-#SBATCH --error=log/llama2inference-gpu.%J.err
-#SBATCH -A dgx-spa
+#SBATCH --job-name=llama_inference
+#SBATCH --output=log/%x_%j.out
 
 module load gcc/11.3.0
 module load intel-oneapi-compilers/2023.1.0
@@ -28,14 +27,16 @@ source activate llamamodule
 
 path_to_script="/scratch/elec/morphogen/llm-morph-tests/llms/llm-examples/batch-inference-llama2"
 
-prompts=$1
-
-echo "Running batch inference for $prompts"
-
 # run batch inference
-torchrun --nproc_per_node 2 \
-    ${path_to_script}/batch_inference.py \
-    --prompts $prompts \
-    --ckpt_dir $MODEL_ROOT \
-    --tokenizer_path $TOKENIZER_PATH \
-    --max_seq_len 512 --max_batch_size 16
+for prompt in "$@"
+do
+    echo "Running batch inference for $prompt"
+    torchrun --nproc_per_node 2 \
+        ${path_to_script}/batch_inference.py \
+        --prompts $prompt \
+        --ckpt_dir $MODEL_ROOT \
+        --tokenizer_path $TOKENIZER_PATH \
+        --max_seq_len 512 --max_batch_size 16 \
+        --temperature 0.3 --max_gen_len 50 \
+        --output_file ${prompt%.json}_llama2.jsonl
+done

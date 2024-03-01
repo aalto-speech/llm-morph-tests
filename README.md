@@ -3,6 +3,9 @@
 ### Generating the test sets
 - select a set of lemmas that are used
     - take a random sample of the shortlisted lemmas
+        - random 1000 nouns
+        - random 1000 verbs
+        - random 1000 adjectives
     - consider frequencies of the
         - lemmas
             - from lemma_freqs.txt file

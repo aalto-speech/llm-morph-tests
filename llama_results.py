@@ -30,8 +30,22 @@ correct_case = 0
 correct_person = 0
 correct = 0
 for pred, ref in zip(preds, refs):
-    (ref_num, ref_case, ref_person) = [i.strip() for i in ref.split(',')[:3]]
-    (pred_num, pred_case, pred_person) = [i.strip() for i in pred.split(',')[:3]]
+    try:
+        (ref_num, ref_case, ref_person) = [i.strip() for i in ref.split(',') if i.strip()][:3]
+        (pred_num, pred_case, pred_person) = [i.strip() for i in pred.split(',') if i.strip()][:3]
+        pred_person = pred_person.split('\n')[0]
+    except:
+        print('too few elements in ref or pred')
+        continue
+
+    print('pred_num:', pred_num,)
+    print('ref_num:', ref_num)
+    print('pred_case:', pred_case)
+    print('ref_case:', ref_case)
+    print('pred_person:', pred_person)
+    print('ref_person:', ref_person)
+    print()
+    # exit()
 
     if pred_num == ref_num:
         correct_num += 1
@@ -39,10 +53,12 @@ for pred, ref in zip(preds, refs):
         correct_case += 1
 
     person = False
-    if pred_person == ref_person:
+    if pred_person.startswith(ref_person):
         person = True
     # if pred includes "kolmas persoona" and ref includes "kolmas persoona":
-    elif ref_person == "kolmas persoona" and "kolmas persoona" in pred:
+    elif ref_person == "kolmas persoona" and \
+        (pred_person.startswith("yksikön kolmas persoona") or \
+         pred_person.startswith("monikon kolmas persoona")):
         person = True
     if person:
         correct_person += 1

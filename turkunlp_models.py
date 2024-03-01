@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # MODEL_NAME = '/scratch/elec/t405-puhe/p/gpt3-finnish/gpt3-finnish-8B'
 # MODEL_NAME = '/scratch/elec/morphogen/gpt3-finnish-13B'
-MODEL_NAME = '/scratch/elec/morphogen/Poro-34B'
+MODEL_NAME = '/scratch/elec/morphogen/llms/Poro-34B'
 
 print(f'Loading model {MODEL_NAME}...')
 
