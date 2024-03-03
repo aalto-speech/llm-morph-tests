@@ -16,17 +16,18 @@ module load cuda/11.8.0
 module load miniconda
 source activate hf23
 
-# run batch inference
-for prompt in "$@"
-do
-    echo "Running batch inference for $prompt"
-    # torchrun 
-    python -m torch.distributed.launch \
-        batch_inference_poro.py \
-        --prompts $prompt \
-        --ckpt_dir $MODEL_ROOT \
-        --tokenizer_path $TOKENIZER_PATH \
-        --max_seq_len 512 --max_batch_size 16 \
-        --temperature 0.7 --max_gen_len 50 \
-        --output_file ${prompt%.json}_poro.jsonl
-done
+prompts=$1
+
+# run inference
+echo "Running inference for $prompts"
+
+# torchrun 
+python -m torch.distributed.launch \
+    batch_inference_poro.py \
+    --prompts $prompts \
+    --ckpt_dir $MODEL_ROOT \
+    --tokenizer_path $TOKENIZER_PATH \
+    --max_seq_len 512 --max_batch_size 16 \
+    --temperature 0.5 --max_gen_len 50 \
+    --output_file ${prompts%.json}_poro.jsonl
+
