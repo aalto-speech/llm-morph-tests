@@ -33,6 +33,12 @@ def fill_noun_template(test_word, n_shot=5):
         template += '\nkoivuumme -- koivu, yksikkö, illatiivi, monikon ensimmäinen persoona'
     if n_shot >= 5:
         template += '\nsängiltään -- sänki, monikko, ablatiivi, yksikön kolmas persoona'
+    if n_shot == 10:
+        template += '\nhuurteenani -- huurre, yksikkö, essiivi, yksikön ensimmäinen persoona'
+        template += '\nkaistojaan -- kaista, monikko, partitiivi, monikon kolmas persoona'
+        template += '\nkinoksiksensa -- kinos, monikko, translatiivi, yksikön kolmas persoona'
+        template += '\nlaaksoillani -- laakso, monikko, adessiivi, yksikön ensimmäinen persoona'
+        template += '\ntalollenne -- talo, yksikkö, allatiivi, monikon toinen persoona'
 
     template += f'\n{test_word}'
 
@@ -108,22 +114,26 @@ if __name__ == "__main__":
     args.add_argument("--word_class", type=str, help="Word class of the inflected words")
     args.add_argument("--output_dir", type=str, help="Output dir name")
     args = args.parse_args()
-    
+
     if not path.isdir(args.output_dir):
         print(f"Creating directory {args.output_dir}")
         makedirs(args.output_dir)
 
-    if path.isfile(args.inflected + '.pkl'):
-        with open(args.inflected + '.pkl', "rb") as f:
-            word2refs = pkl.load(f)
-    else:
-        word2refs = make_word2refs(args.inflected)
-        with open(args.inflected + '.pkl', "wb") as f:
-            pkl.dump(word2refs, f)
 
     if not args.samples:
+        if path.isfile(args.inflected + '.pkl'):
+            with open(args.inflected + '.pkl', "rb") as f:
+                word2refs = pkl.load(f)
+        else:
+            word2refs = make_word2refs(args.inflected)
+            with open(args.inflected + '.pkl', "wb") as f:
+                pkl.dump(word2refs, f)
+                
         # get random n_samples from input
         samples = random.sample(sorted(word2refs), args.n_samples)
+        if path.isfile(f"{args.output_dir}/samples.json"):
+            print(f"Error: file {args.output_dir}/samples.json already exists")
+            exit(1)
         with open(f"{args.output_dir}/samples.json",        "w", encoding="utf-8") as fsamples:
             fsamples.write(json.dumps(samples))
     else:
@@ -135,8 +145,10 @@ if __name__ == "__main__":
     omorstrings = []
     for sample in samples:
         prompts.append(fill_noun_template(sample, args.n_shot))
-        refs.append('\n'.join([s[1] for s in word2refs[sample]]))
-        omorstrings.append('\n'.join([s[0] for s in word2refs[sample]]))
+        
+        if args.inflected:
+            refs.append('\n'.join([s[1] for s in word2refs[sample]]))
+            omorstrings.append('\n'.join([s[0] for s in word2refs[sample]]))
 
 
     # write to files in batches
@@ -148,12 +160,26 @@ if __name__ == "__main__":
     #         fsample.write(json.dumps(batch_prompts))
     #         fref.write(json.dumps(batch_refs))
 
-    with open(f"{args.output_dir}/prompts_{args.n_shot}shot.json", "w", encoding="utf-8") as fsample, \
-         open(f"{args.output_dir}/refs.json",           "w", encoding="utf-8") as fref, \
-         open(f"{args.output_dir}/omorstrings.json",    "w", encoding="utf-8") as fomorstrings:
+    # check that file doesn't exist
+    if path.isfile(f"{args.output_dir}/prompts_{args.n_shot}shot.json"):
+        print(f"Error: file {args.output_dir}/prompts_{args.n_shot}shot.json already exists")
+        exit(1)
+    with open(f"{args.output_dir}/prompts_{args.n_shot}shot.json", "w", encoding="utf-8") as fsample:
         fsample.write(json.dumps(prompts))
-        fref.write(json.dumps(refs))
-        fomorstrings.write(json.dumps(omorstrings))
+
+    
+    
+    if args.inflected:
+        if path.isfile(f"{args.output_dir}/refs.json"):
+            print(f"Error: file {args.output_dir}/refs.json already exists")
+            exit(1)
+        if path.isfile(f"{args.output_dir}/omorstrings.json"):
+            print(f"Error: file {args.output_dir}/omorstrings.json already exists")
+            exit(1)
+        with open(f"{args.output_dir}/refs.json",           "w", encoding="utf-8") as fref, \
+                open(f"{args.output_dir}/omorstrings.json",    "w", encoding="utf-8") as fomorstrings:
+            fref.write(json.dumps(refs))
+            fomorstrings.write(json.dumps(omorstrings))
 
     print(f"Generated {len(prompts)} prompts and references")
     print(f"Saved to {args.output_dir}")

@@ -12,23 +12,21 @@ import argparse
 import json
 
 argparser = argparse.ArgumentParser()
-argparser.add_argument("--prompt-file", type=str,)
+argparser.add_argument("--prompts", type=str, help="File of prompts to use")
+argparser.add_argument("--out", type=str, help="Output file name")
 args = argparser.parse_args()
 
-with open(args.prompt_file, "r", encoding='utf-8') as f:
+with open(args.prompts, "r", encoding='utf-8') as f:
     prompts = json.load(f)
 
 converted_prompts = []
-for prompt in prompts:
+for prompt in prompts[:10]:
     converted_prompts.append(
             {
                 "role": "user",
                 "content": prompt,
                 }
             )
-print(converted_prompts)
-exit()
-
 
 def update_base_url(request: httpx.Request) -> None:
     if request.url.path == "/chat/completions":
@@ -47,7 +45,11 @@ client = OpenAI(
             ),
         )
 
-completion = client.chat.completions.create(
+outputs = []
+completions = []
+for msg in converted_prompts:
+    print(msg)
+    completion = client.chat.completions.create(
         model="no_effect", # the model variable must be set, but has no effect, URL defines model
         # messages=[
         #     {
@@ -55,7 +57,14 @@ completion = client.chat.completions.create(
         #         "content": prompt,
         #         }
         #     ],
-        messages=converted_prompts,
+        # messages=converted_prompts,
+        messages=[msg],
         )
+    outputs.append(completion.choices[0].message["content"])
+    completions.append(completion)
 
-print(completion)
+with open(args.out, "w", encoding='utf-8') as f:
+    json.dump(outputs, f)
+
+with open(args.out + ".completions.json", "w", encoding='utf-8') as f:
+    json.dump([c.dict() for c in completions], f)

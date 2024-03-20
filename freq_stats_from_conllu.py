@@ -68,6 +68,18 @@ def parse_lemmas(token):
     return None
 
 
+def parse_forms(token):
+    if not token['feats']:
+        return None
+    for morph_type, morph_class in token['feats'].items():
+        morph_tag = f'{morph_type}={morph_class}'
+        if any(morph_tag.startswith(noisy_tag) for noisy_tag in noisy_tags):
+            return None
+    # if token['lemma'] in included_lemmas:
+    return token['form'].lower()
+    # return None
+
+
 def parse_lemma_upos(token):
     if not token['feats']:
         return None
@@ -188,27 +200,29 @@ def main():
             parser_func = parse_feats
         elif args.token_feat == 'all':
             parser_func = parse_all
+        elif args.token_feat == 'wordform':
+            parser_func = parse_forms
         else:
             raise ValueError(f'Unknown token feature: {args.token_feat}')
 
         # freq_stats = freq_stats_from_conllu(args.input_file, args.token_feat) #, args.min_len)
-        # write_all_lemmas(args.output_file, Counter(token_iter_conllu(args.input_file, parser_func,
-        #                                 #  args.min_lemma_len
-        #                                 ),
-        #                             ).most_common())
+        write_all_lemmas(args.output_file, Counter(token_iter_conllu(args.input_file, parser_func,
+                                        #  args.min_lemma_len
+                                        ),
+                                    ).most_common())
 
-        classes = {'NOUN': [], 'VERB': [], 'ADJ': []}
-        for item in token_iter_conllu(args.input_file, parse_lemma_upos):
-            if item is not None:
-                lemma, upos = item
-                if upos in classes:
-                    classes[upos].append(lemma)
+        # classes = {'NOUN': [], 'VERB': [], 'ADJ': []}
+        # for item in token_iter_conllu(args.input_file, parse_lemma_upos):
+        #     if item is not None:
+        #         lemma, upos = item
+        #         if upos in classes:
+        #             classes[upos].append(lemma)
 
-        for cls, wordlist in classes.items():
-            counter = Counter(wordlist)
-            with open(args.output_file + f'.{cls}.txt', 'w', encoding='utf-8') as f:
-                for lemma, freq in counter.most_common():
-                    f.write(f'{lemma} {freq}\n')
+        # for cls, wordlist in classes.items():
+        #     counter = Counter(wordlist)
+        #     with open(args.output_file + f'.{cls}.txt', 'w', encoding='utf-8') as f:
+        #         for lemma, freq in counter.most_common():
+        #             f.write(f'{lemma} {freq}\n')
 
 
     # print(ignored_tags)

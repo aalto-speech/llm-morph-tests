@@ -12,13 +12,12 @@ module load gcc/11.3.0
 module load intel-oneapi-compilers/2023.1.0
 module load cuda/11.8.0
 
-# get the model weights
 llama_version=$1
 prompts=$2
 
 module load model-llama2/$llama_version
-
-echo "using llama version $llama_version"
+echo "Using llama version $llama_version in $MODEL_ROOT"
+echo "and tokenizer in $TOKENIZER_PATH"
 
 if [[ "$llama_version" == "7b" ]]; then
     nprocs=1
@@ -31,21 +30,12 @@ else
     exit 1
 fi
 
-echo $MODEL_ROOT
-# Expect output: /scratch/shareddata/dldata/llama-2/llama-2-7b
-echo $TOKENIZER_PATH
-# Expect output: /scratch/shareddata/dldata/llama-2/tokenizer.model
-
-# activate your conda environment
 module load miniconda
 source activate llamamodule
 
-path_to_script="/scratch/elec/morphogen/llm-morph-tests/llms/llm-examples/batch-inference-llama2"
-
-# run inference
 echo "Running inference for $prompts"
 torchrun --nproc_per_node $nprocs \
-    ${path_to_script}/batch_inference.py \
+    llms/llm-examples/batch-inference-llama2/batch_inference.py \
     --prompts $prompts \
     --ckpt_dir $MODEL_ROOT \
     --tokenizer_path $TOKENIZER_PATH \
