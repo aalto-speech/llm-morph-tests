@@ -142,16 +142,20 @@ def normalise_refs(ref):
     return ref_lines
 
 
-def check_exact_match(pred, ref, verbose=False):
+def check_exact_match(pred, ref, verbose=False, parse=True):
     """Check the exact match for each of the three categories."""
 
-    (pred_num, pred_case, pred_person) = pred # parse_answer_line(pred)
-    # pred_person = pred_person.split('\n')[0]
+    if parse:
+        pred = parse_answer_line(pred)
+    (pred_num, pred_case, pred_person) = pred
+    if parse:
+        pred_person = pred_person.split('\n')[0]
+    if parse:
+        ref = parse_ref(ref)
 
     best_match = 0
     results = (False, False, False)
     aligned = (None, None, None, None, None, None)
-    # for ref_line in parse_ref(ref):
     for ref_line in ref:
         (ref_num, ref_case, ref_person) = ref_line
 
@@ -184,7 +188,7 @@ def get_aligned(preds, refs):
     """Get the aligned predictions and references."""
     aligned = []
     for pred, ref in zip(preds, refs):
-        _, alignment = check_exact_match(pred, ref)
+        _, alignment = check_exact_match(pred, ref, parse=False)
         aligned.append(alignment)
     return aligned
 
@@ -267,7 +271,7 @@ def plot_accuracy_wrt_freq(matches, keys, freqs, title):
             else:
                 freqs2accs[freqs[key]] = [match]
 
-    plt.scatter(freqs2accs.keys(), [np.mean(freqs2accs[key]) for key in freqs2accs.keys()])
+    plt.scatter(freqs2accs.keys(), [np.mean(v) for v in freqs2accs.values()])
     plt.xlabel(f"{title} frequency")
     plt.ylabel("Accuracy")
     plt.title(f"Accuracy wrt {title} frequency")
@@ -378,7 +382,7 @@ def main():
     if args.confusion:
         normalised_preds = [normalise_preds(pred) for pred in preds]
         normalised_refs = [normalise_refs(ref) for ref in refs]
-        print(confusion_mats(normalised_preds, normalised_refs, args.out))
+        confusion_mats(normalised_preds, normalised_refs, args.out)
     else:
         results = get_avg_accuracies(preds, refs)
 

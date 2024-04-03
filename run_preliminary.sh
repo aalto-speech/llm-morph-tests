@@ -28,7 +28,7 @@ done
 
 
 # run llama
-n_shot=10
+n_shot=5
 
 sbatch --gres=gpu:1 run_llama.sh "7b" ${expt_dir}/data/prompts_${n_shot}shot.json
 
@@ -37,8 +37,16 @@ sbatch --gres=gpu:8 --time=12:00:00 --dependency=afterany:29199073 \
 
 
 # run poro
-sbatch --dependency=afterany:29199076 --time=18:00:00 \
-    run_poro.sh ${expt_dir}/data/prompts_${n_shot}shot.json
+# --partition=gpu,dgx-common 
+# sbatch --gres=gpu:2 --mem=3GB --partition=gpu,gpushort \
+# model_name='TurkuNLP/gpt3-finnish-small'
+n_shot=5
+model_name='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
+sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
+    run_poro.sh \
+    $model_name \
+    ${expt_dir}/data/prompts_${n_shot}shot.json \
+    0.3
 
 
 # run GPT-4
@@ -59,14 +67,16 @@ python evaluate.py \
     --out ${expt_dir}/results_${n_shot}shot_${model_name}.txt
 
 
+expt_dir="expts/prelim3000"
 n_shot=5
 model_name="poro"
-python evaluate.py \
+temp=0.1
+(set -x; python evaluate.py \
     --refs ${expt_dir}/data/refs.json \
-    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
+    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp${temp}.jsonl \
     --preds-include-prompt \
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
-    --out ${expt_dir}/results_${n_shot}shot_${model_name}.txt
+    --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp${temp}.txt)
 
 
 # correlation with lemma freq, word form freqs, feats freqs
@@ -88,13 +98,15 @@ python evaluate.py \
 
 
 # confusion matrix
-model_name="llama2_70b"
+expt_dir="expts/prelim3000"
+# model_name="llama2_70b"
 model_name="poro"
-n_shot=1
+n_shot=5
+temp=0.3
 python evaluate.py \
     --refs ${expt_dir}/data/refs.json \
-    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
-    --out ${expt_dir}/confusion_matrix_${n_shot}shot_${model_name}.png \
+    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp${temp}.jsonl \
+    --out ${expt_dir}/confusion_matrix_${n_shot}shot_${model_name}_temp${temp}.png \
     --confusion \
     --preds-include-prompt \
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json

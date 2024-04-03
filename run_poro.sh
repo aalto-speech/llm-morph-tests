@@ -2,8 +2,6 @@
 #SBATCH --time=00:25:00
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=30GB
-#SBATCH --partition dgx-spa
-#SBATCH -A dgx-spa
 #SBATCH --gres=gpu:3
 #SBATCH --job-name=poro_inference
 #SBATCH --output=log/%x_%j.out
@@ -16,18 +14,25 @@ module load cuda/11.8.0
 module load miniconda
 source activate hf23
 
-prompts=$1
+model_path=$1
+prompts=$2
+temp=$3
 
 # run inference
 echo "Running inference for $prompts"
 
-# torchrun 
-python -m torch.distributed.launch \
+if [ -z "$temp" ]; then
+    temp=0.7
+fi
+echo "Temperature: $temp"
+
+# torchrun
+# python -m torch.distributed.launch \
+
+(set -x; torchrun \
     batch_inference_poro.py \
     --prompts $prompts \
-    --ckpt_dir $MODEL_ROOT \
-    --tokenizer_path $TOKENIZER_PATH \
+    --model_path $model_path \
     --max_seq_len 512 --max_batch_size 16 \
-    --temperature 0.5 --max_gen_len 50 \
-    --output_file ${prompts%.json}_poro.jsonl
-
+    --temperature $temp --max_gen_len 50 \
+    --output_file ${prompts%.json}_poro_temp${temp}.jsonl)
