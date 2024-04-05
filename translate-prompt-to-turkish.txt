@@ -1,0 +1,11 @@
+Please translate this Finnish text to Turkish:
+"Jäsennä taivutetut substantiivit tällä tavalla:
+taivutusmuoto -- perusmuoto, luku, sijamuoto, omistusliite"
+
+GPT-4:
+Bu şekilde çekimlenmiş isimleri sınıflandırın:
+çekim şekli -- temel form, sayı, durum eki, iyelik ekleri
+
+DeepL:
+Bu formatı kullanarak çekimli isimleri ayrıştırın:
+çekimli biçim -- temel biçim, sayı, dilbilgisel durum, iyelik biçimi

@@ -128,7 +128,7 @@ if __name__ == "__main__":
             word2refs = make_word2refs(args.inflected)
             with open(args.inflected + '.pkl', "wb") as f:
                 pkl.dump(word2refs, f)
-                
+
         # get random n_samples from input
         samples = random.sample(sorted(word2refs), args.n_samples)
         if path.isfile(f"{args.output_dir}/samples.json"):
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     omorstrings = []
     for sample in samples:
         prompts.append(fill_noun_template(sample, args.n_shot))
-        
+
         if args.inflected:
             refs.append('\n'.join([s[1] for s in word2refs[sample]]))
             omorstrings.append('\n'.join([s[0] for s in word2refs[sample]]))
@@ -167,8 +167,8 @@ if __name__ == "__main__":
     with open(f"{args.output_dir}/prompts_{args.n_shot}shot.json", "w", encoding="utf-8") as fsample:
         fsample.write(json.dumps(prompts))
 
-    
-    
+
+
     if args.inflected:
         if path.isfile(f"{args.output_dir}/refs.json"):
             print(f"Error: file {args.output_dir}/refs.json already exists")

@@ -4,7 +4,20 @@ expt_dir="expts/prelim3000"
 
 inflected="data/inflected_1000_nouns/inflected_new_filtered_sorted.txt"
 
-# generate prompts
+#### inflect words
+# inflect lemmas with omorfi-generate.sh
+cd omorfi
+bash ../omorfi-inflect/permute-case-number-person.sh \
+    ../${expt_dir}/lemmas.txt \
+    ../${expt_dir}/cases.txt \
+    ../${expt_dir}/numbers.txt \
+    ../${expt_dir}/persons.txt \
+    ../inflected
+cd ..
+
+
+
+#### generate prompts
 n_shot=1
 for word_class in "noun"
 do
@@ -27,7 +40,7 @@ do
 done
 
 
-# run llama
+#### run llama
 n_shot=5
 
 sbatch --gres=gpu:1 run_llama.sh "7b" ${expt_dir}/data/prompts_${n_shot}shot.json
@@ -36,7 +49,7 @@ sbatch --gres=gpu:8 --time=12:00:00 --dependency=afterany:29199073 \
     run_llama.sh "70b" ${expt_dir}/data/prompts_${n_shot}shot.json
 
 
-# run poro
+#### run poro
 # --partition=gpu,dgx-common 
 # sbatch --gres=gpu:2 --mem=3GB --partition=gpu,gpushort \
 # model_name='TurkuNLP/gpt3-finnish-small'
@@ -49,7 +62,7 @@ sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
     0.3
 
 
-# run GPT-4
+#### run GPT-4
 n_shot=1
 model_name="gpt4"
 python run_gpt.py \
@@ -57,7 +70,7 @@ python run_gpt.py \
     --out ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl
 
 
-# evaluate
+#### evaluate
 expt_dir="expts/prelim3000"
 n_shot=10
 model_name="llama2_70b"
@@ -79,7 +92,7 @@ temp=0.1
     --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp${temp}.txt)
 
 
-# correlation with lemma freq, word form freqs, feats freqs
+#### correlation with lemma freq, word form freqs, feats freqs
 omorstring_file="${expt_dir}/data/omorstrings.json"
 lemma_freq_file="data/stats/lemma_freqs.NOUN.txt"
 feats_freq_file="data/stats/upos_feats_freqs.txt"
@@ -97,7 +110,7 @@ python evaluate.py \
     # --lemma-freq-file $lemma_freq_file
 
 
-# confusion matrix
+#### confusion matrix
 expt_dir="expts/prelim3000"
 # model_name="llama2_70b"
 model_name="poro"
