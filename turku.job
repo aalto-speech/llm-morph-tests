@@ -1,7 +1,0 @@
-#!/bin/bash
-#SBATCH --time=00:55:00
-#SBATCH --mem=88G
-#SBATCH --job-name=turkunlp_models
-#SBATCH --output=%x_%j.out
-
-python turkunlp_models.py

@@ -65,7 +65,7 @@ sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
 #### run GPT-4
 n_shot=1
 model_name="gpt4"
-python run_gpt.py \
+python inference_gpt.py \
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
     --out ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl
 

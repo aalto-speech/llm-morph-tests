@@ -1,3 +1,0 @@
-[WORD_ID=peukalo][UPOS=NOUN][NUM=PL][CASE=ELA][POSS=PL2]	peukalostanne
-[WORD_ID=rehtiys][UPOS=NOUN][NUM=PL][CASE=GEN][POSS=SG2]	rehtiyksiesi	
-[WORD_ID=sänki][UPOS=NOUN][NUM=PL][CASE=ABL][POSS=3]	sängiltään

@@ -1,4 +1,0 @@
-Number: 0.513671875
-Case: 0.123046875
-Person: 0.396484375
-Completely correct: 0.03125
