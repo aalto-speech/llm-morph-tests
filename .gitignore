@@ -1,6 +1,10 @@
 # external repos
+# llms/ subdirs include poro, llama, gpt3-finnish
 llms
+# github.com:flammie/omorfi.git
 omorfi
+# github.com:google-research-datasets/turkish-treebanks.git
+turkish-treebanks
 
 # data
 omorfi-inflect/data
