@@ -61,7 +61,7 @@ CASE_LABELS.append("other")
 
 #     return preds, refs, prompts
 
-def read_files(pred_file, ref_file, prompt_file=None):
+def read_files(pred_file, ref_file, prompt_file=None, refs_range=None):
     """Read the predictions and references from the files."""
 
     with open(pred_file, "r", encoding="utf-8") as f:
@@ -69,6 +69,8 @@ def read_files(pred_file, ref_file, prompt_file=None):
 
     with open(ref_file, "r", encoding="utf-8") as f:
         refs = json.load(f)
+    if refs_range:
+        refs = refs[refs_range[0]:refs_range[1]]
 
     if prompt_file:
         with open(prompt_file, "r", encoding="utf-8") as f:
@@ -76,7 +78,8 @@ def read_files(pred_file, ref_file, prompt_file=None):
     else:
         prompts = None
 
-    assert len(preds) == len(refs), "Number of predictions and references should be the same"
+    assert len(preds) == len(refs), "Number of predictions and references should be the same. " \
+        + f"len(preds): {len(preds)}, len(refs): {len(refs)}"
     if prompt_file:
         assert len(preds) == len(prompts), "Number of predictions and prompts should be the same"
 
@@ -86,6 +89,8 @@ def read_files(pred_file, ref_file, prompt_file=None):
 
 def parse_answer_line(answer):
     """Parse the answer into a tuple of (number, case, person)."""
+    if '--' in answer: # remove the inflected form and also the base form
+        answer = ','.join(answer.split('--')[1].split(',')[1:])
     parsed = [i.strip() for i in answer.split(',') if i.strip()][:3]
     if len(parsed) == 3:
         return tuple(parsed)
@@ -212,7 +217,7 @@ def get_exact_matches(preds, refs):
     return results
 
 
-def get_avg_accuracies(preds, refs):
+def get_avg_accuracies(preds, refs, verbose=True):
     """Make a dict of lists of boolean values of whether the prediction is correct"""
     results = {
         'num': 0,
@@ -231,6 +236,12 @@ def get_avg_accuracies(preds, refs):
             results['person'] += 1
         if num_match and case_match and person_match:
             results['complete'] += 1
+        
+        if verbose:
+            print(pred)
+            print(ref)
+            print(f"num_match: {num_match}, case_match: {case_match}, person_match: {person_match}")
+            print()
 
     return results
 
@@ -306,7 +317,7 @@ def confusion_mats(preds, refs, output_file):
     ref_num_labels = [label for label in NUM_LABELS if label != "other"]
     ref_case_labels = [label for label in CASE_LABELS if label != "other"]
     ref_person_labels = [label for label in PERSON_LABELS if label != "other"]
-    
+
 
     print(num_conf)
     print(case_conf)
@@ -370,9 +381,10 @@ def main():
     parser.add_argument("--omorstrings", type=str, help="file with omorstrings")
     parser.add_argument("--out", help="output file")
     parser.add_argument("--confusion", help="plot confusion matrices", action="store_true")
+    parser.add_argument("--refs-range", type=int, nargs=2, help="range of references to use")
     args = parser.parse_args()
 
-    preds, refs, prompts = read_files(args.preds, args.refs, args.prompts)
+    preds, refs, prompts = read_files(args.preds, args.refs, args.prompts, refs_range=args.refs_range)
 
     if prompts:
         assert len(prompts) == len(refs), "Number of prompts and references should be the same"
@@ -399,7 +411,7 @@ def main():
             print(f"Complete: {results['complete'] / len(refs)}")
 
         if args.acc_wrt_freq:
-            
+
             ems = get_exact_matches(preds, refs)
 
             with open(args.prompts, "r", encoding="utf-8") as f:
@@ -418,15 +430,12 @@ def main():
                 fig_title = "form"
                 freq_dict_keys = [parse_lemma_form_from_prompt(prompt)[1] for prompt in prompts]
                 # print(f"freq_dict_keys: {freq_dict_keys}")
-                
+
                 plot_accuracy_wrt_freq(ems['person'], freq_dict_keys, freqs, fig_title)
 
             if args.feats_freq_file:
                 freqs = read_freq_stats(args.feats_freq_file)
                 fig_title = "feature"
-
-            
-
 
 if __name__ == "__main__":
     main()

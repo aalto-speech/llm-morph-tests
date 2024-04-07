@@ -18,27 +18,26 @@ cd ..
 
 
 #### generate prompts
-n_shot=1
+n_shot=0
 for word_class in "noun"
 do
     python generate_prompts.py \
         --inflected $inflected \
         --n_shot $n_shot \
         --n_samples 3000 \
-        --batch_size 16 \
         --word_class $word_class \
         --output_dir ${expt_dir}/data
 done
 
-for n_shot in 10
+for n_shot in 0
 do
     python generate_prompts.py \
         --samples ${expt_dir}/data/samples.json \
         --n_shot $n_shot \
-        --batch_size 16 \
         --output_dir ${expt_dir}/data
 done
 
+################################################
 
 #### run llama
 n_shot=5
@@ -63,14 +62,22 @@ sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
 
 
 #### run GPT-4
-n_shot=1
+expt_dir="expts/prelim3000"
+n_shot=5
 model_name="gpt4"
+sample_range="0-100"
 python inference_gpt.py \
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
-    --out ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl
+    --model $model_name \
+    --sample-range $sample_range \
+    --out ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl
 
+
+################################################
 
 #### evaluate
+
+# evaluate llama
 expt_dir="expts/prelim3000"
 n_shot=10
 model_name="llama2_70b"
@@ -79,7 +86,7 @@ python evaluate.py \
     --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
     --out ${expt_dir}/results_${n_shot}shot_${model_name}.txt
 
-
+# evaluate poro
 expt_dir="expts/prelim3000"
 n_shot=5
 model_name="poro"
@@ -91,6 +98,19 @@ temp=0.1
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
     --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp${temp}.txt)
 
+
+# evaluate gpt4
+expt_dir="expts/prelim3000"
+n_shot=5
+model_name="gpt4"
+sample_range="0-100"
+python evaluate.py \
+    --refs ${expt_dir}/data/refs.json \
+    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl \
+    --refs-range 0 100 \
+    --out ${expt_dir}/results_${n_shot}shot_${model_name}_${sample_range}.txt
+
+################################################
 
 #### correlation with lemma freq, word form freqs, feats freqs
 omorstring_file="${expt_dir}/data/omorstrings.json"
