@@ -7,7 +7,7 @@ inflected="data/inflected_1000_nouns/inflected_new_filtered_sorted.txt"
 #### inflect words
 # inflect lemmas with omorfi-generate.sh
 cd omorfi
-bash ../omorfi-inflect/permute-case-number-person.sh \
+bash ../inflect-finnish-words.sh \
     ../${expt_dir}/lemmas.txt \
     ../${expt_dir}/cases.txt \
     ../${expt_dir}/numbers.txt \
