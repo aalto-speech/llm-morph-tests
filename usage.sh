@@ -29,7 +29,7 @@ do
         --output_dir ${expt_dir}/data
 done
 
-for n_shot in 0
+for n_shot in 3
 do
     python generate_prompts.py \
         --samples ${expt_dir}/data/samples.json \
@@ -63,14 +63,20 @@ sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
 
 #### run GPT-4
 expt_dir="expts/prelim3000"
-n_shot=5
-model_name="gpt4"
+# n_shot=1
+# model_name="gpt4-turbo"
 sample_range="0-100"
-python inference_gpt.py \
-    --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
-    --model $model_name \
-    --sample-range $sample_range \
-    --out ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl
+for n_shot in 3 10
+do
+    for model_name in gpt4 gpt4-turbo
+    do
+        python inference_gpt.py \
+            --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
+            --model $model_name \
+            --sample-range $sample_range \
+            --out ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl
+    done
+done
 
 
 ################################################
@@ -101,14 +107,20 @@ temp=0.1
 
 # evaluate gpt4
 expt_dir="expts/prelim3000"
-n_shot=5
-model_name="gpt4"
+# n_shot=1
+# model_name="gpt4-turbo"
 sample_range="0-100"
-python evaluate.py \
-    --refs ${expt_dir}/data/refs.json \
-    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl \
-    --refs-range 0 100 \
-    --out ${expt_dir}/results_${n_shot}shot_${model_name}_${sample_range}.txt
+for n_shot in 0 1 3 10
+do
+    for model_name in gpt4 gpt4-turbo
+    do
+        python evaluate.py \
+            --refs ${expt_dir}/data/refs.json \
+            --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl \
+            --refs-range 0 100 \
+            --out ${expt_dir}/results_${n_shot}shot_${model_name}_${sample_range}_newparsing.txt
+    done
+done
 
 ################################################
 
@@ -143,3 +155,22 @@ python evaluate.py \
     --confusion \
     --preds-include-prompt \
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json
+
+
+expt_dir="expts/prelim3000"
+model_name="gpt4"
+# n_shot=5
+temp=1.0
+sample_range="0-100"
+for n_shot in 0
+do
+    for model_name in gpt4-turbo
+    do
+        python evaluate.py \
+            --refs ${expt_dir}/data/refs.json \
+            --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl \
+            --out ${expt_dir}/confusion_matrix_${n_shot}shot_${model_name}_${sample_range}_temp${temp}.png \
+            --confusion \
+            --refs-range 0 100
+    done
+done

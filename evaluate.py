@@ -91,8 +91,12 @@ def parse_answer_line(answer):
     """Parse the answer into a tuple of (number, case, person)."""
     if '--' in answer: # remove the inflected form and also the base form
         answer = ','.join(answer.split('--')[1].split(',')[1:])
-    parsed = [i.strip() for i in answer.split(',') if i.strip()][:3]
-    if len(parsed) == 3:
+
+
+    parsed = [i.strip() for i in answer.split(',') if i.strip()]
+    if len(parsed) > 3:
+        return tuple(parsed[1:4])
+    elif len(parsed) == 3:
         return tuple(parsed)
     elif len(parsed) == 2:
         return tuple(parsed + [''])
