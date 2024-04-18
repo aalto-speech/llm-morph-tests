@@ -1,23 +1,55 @@
 #!/bin/bash
 
+###############################################################################
+#### get the inflected forms from the FST
+
+cd omorfi
+
+# get noun, verb etc. lexemes from omorfi
+# filter punctuation, proper names, acronyms etc.
+grep NOUN omorfi/src/lexemes.tsv \
+    | grep -v -P ACRO \
+    | awk '{print $1}' \
+    | grep -P ^[a-zäö]+$ \
+    > data/omorfi_noun_lexemes_filtered.txt
+
+grep VERB omorfi/src/lexemes.tsv \
+    | awk '{print $1}' \
+    | grep -P ^[a-zäö]+$ \
+    > data/omorfi_verb_lexemes_filtered.txt
+
+grep ADJ omorfi/src/lexemes.tsv \
+    | awk '{print $1}' \
+    | grep -P ^[a-zäö]+$ \
+    > data/omorfi_adj_lexemes_filtered.txt
+
+
+# dump the inflected forms of the filtered lexemes from the FST 
+bash src/bash/generate-wordlist-withtags-nouns.sh \
+    ../data/omorfi_noun_lexemes_filtered.txt \
+    ../data/omorfi_noun_lexemes_filtered_inflected.txt
+
+bash src/bash/generate-wordlist-withtags-verbs.sh \
+    ../data/omorfi_verb_lexemes_filtered.txt \
+    ../data/omorfi_verb_lexemes_filtered_inflected.txt
+
+bash src/bash/generate-wordlist-withtags-adj.sh \
+    ../data/omorfi_adj_lexemes_filtered.txt \
+    ../data/omorfi_adj_lexemes_filtered_inflected.txt
+
+
+filenumber=5
+bash src/bash/generate-wordlist-withtags-nouns-parallel.sh \
+    ../data/omorfi_noun_lexemes_filtered.txt.tail84000.0${filenumber} \
+    ../data/omorfi_noun_lexemes_filtered_inflected.txt.0${filenumber} \
+    temp${filenumber}
+
+    
+###############################################################################
+#### generate prompts
+inflected="data/inflected_1000_nouns/inflected_new_filtered_sorted.txt"
 expt_dir="expts/prelim3000"
 
-inflected="data/inflected_1000_nouns/inflected_new_filtered_sorted.txt"
-
-#### inflect words
-# inflect lemmas with omorfi-generate.sh
-cd omorfi
-bash ../inflect-finnish-words.sh \
-    ../${expt_dir}/lemmas.txt \
-    ../${expt_dir}/cases.txt \
-    ../${expt_dir}/numbers.txt \
-    ../${expt_dir}/persons.txt \
-    ../inflected
-cd ..
-
-
-
-#### generate prompts
 n_shot=0
 for word_class in "noun"
 do
@@ -37,7 +69,8 @@ do
         --output_dir ${expt_dir}/data
 done
 
-################################################
+###############################################################################
+#### run LLMs
 
 #### run llama
 n_shot=5
@@ -79,7 +112,7 @@ do
 done
 
 
-################################################
+###############################################################################
 
 #### evaluate
 
@@ -122,7 +155,7 @@ do
     done
 done
 
-################################################
+###############################################################################
 
 #### correlation with lemma freq, word form freqs, feats freqs
 omorstring_file="${expt_dir}/data/omorstrings.json"

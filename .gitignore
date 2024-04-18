@@ -15,7 +15,10 @@ inflected
 *.jsonl
 *.json
 data/corpora
+data/*.txt*
+data/*.backup
 lemma2feats*
+data/inflected_shortlist_nouns/omorstrings.txt
 
 # other
 log

@@ -1,10 +1,9 @@
 Jäsennä taivutetut substantiivit tällä tavalla:
 taivutusmuoto -- perusmuoto, luku, sijamuoto, omistusliite
 
-vedessämme -- vesi, ----> yksikkö, inessiivi, monikon ensimmäinen persoona
-
+vedessämme -- vesi, yksikkö, inessiivi, monikon ensimmäinen persoona
 rehtiyksiesi -- rehtiys, monikko, genetiivi, yksikön toinen persoona
-peukaloistanne -- peukalo, yksikkö, elatiivi, monikon toinen persoona
+peukalostanne -- peukalo, yksikkö, elatiivi, monikon toinen persoona
 koivuumme -- koivu, yksikkö, illatiivi, monikon ensimmäinen persoona
 sängiltään -- sänki, monikko, ablatiivi, yksikön kolmas persoona
 huurteenani -- huurre, yksikkö, essiivi, yksikön ensimmäinen persoona

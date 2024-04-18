@@ -2,7 +2,7 @@
 
 
 # to run this script:
-# bash ../omorfi-inflect/permute-case-number-person.sh \
+# bash ../inflect-finnish-words.sh \
 #     ../data/stats/lemma_freqs.NOUN.txt.shortlist.random1000.plain \
 #     ../expts/preliminary/cases.txt \
 #     ../expts/preliminary/numbers.txt \
@@ -35,13 +35,13 @@ do
     done
 done
 
-for lemma in $(cat $lemmas)
-do
-    bash src/bash/omorfi-generate.sh \
-        $output_dir/omorstrings.txt | \
-        grep WORD_ID=${lemma} | cut -f 1,2 \
-        >> $output_dir/inflected.txt
-done
+# for lemma in $(cat $lemmas)
+# do
+#     bash src/bash/omorfi-generate.sh \
+#         $output_dir/omorstrings.txt | \
+#         grep WORD_ID=${lemma} | cut -f 1,2 \
+#         >> $output_dir/inflected.txt
+# done
 
 #  grep -v inf |
 
