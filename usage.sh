@@ -44,6 +44,12 @@ bash src/bash/generate-wordlist-withtags-nouns-parallel.sh \
     ../data/omorfi_noun_lexemes_filtered_inflected.txt.0${filenumber} \
     temp${filenumber}
 
+filenumber=20
+bash src/bash/generate-wordlist-withtags-nouns-parallel.sh \
+    ../data/omorfi_noun_lexemes_filtered.txt.tail84000.${filenumber} \
+    ../data/omorfi_noun_lexemes_filtered_inflected.txt.${filenumber} \
+    temp${filenumber}
+
     
 ###############################################################################
 #### generate prompts
@@ -154,6 +160,14 @@ do
             --out ${expt_dir}/results_${n_shot}shot_${model_name}_${sample_range}_newparsing.txt
     done
 done
+
+# evaluate TNPP
+expt_dir="expts/prelim3000"
+(set -x; python evaluate.py \
+    --refs ${expt_dir}/data/refs.json \
+    --preds ${expt_dir}/data/samples.json.conllu.parsed.json \
+    --translate-preds \
+    --out ${expt_dir}/results_tnpp.txt)
 
 ###############################################################################
 

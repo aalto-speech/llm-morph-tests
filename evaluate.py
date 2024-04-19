@@ -4,6 +4,7 @@ import json
 from freq_stats_from_conllu import read_freq_stats
 
 NUM_LABELS = ["yksikkö", "monikko", "other"]
+NUM_LABELS_TRANSLATED = ["Sing", "Plur", "other"]
 
 PERSON_LABELS = ["yksikön ensimmäinen persoona",
     "yksikön toinen persoona",
@@ -14,6 +15,7 @@ PERSON_LABELS = ["yksikön ensimmäinen persoona",
     "kolmas persoona",
     "other",
     ]
+PERSON_LABELS_TRANSLATED = ["Sing1", "Sing2", "Plur1", "Plur2", "3", "other"]
 
 CASE_LABELS_RAW = """ ABE-    abessiivi-       vajanto    -     abessive    -    talotta
     ABL-    ablatiivi-       ulkoeronto  -    ablative    -    talolta
@@ -31,6 +33,9 @@ CASE_LABELS_RAW = """ ABE-    abessiivi-       vajanto    -     abessive    -   
     # COM-    komitatiivi -    seuranto     -   comitative   -   taloineen
 CASE_LABELS = [label.split("-")[1].strip() for label in CASE_LABELS_RAW.split("\n")]
 CASE_LABELS.append("other")
+
+CASE_LABELS_TRANSLATED = [label.split("-")[0].strip().lower().capitalize() for label in CASE_LABELS_RAW.split("\n")]
+CASE_LABELS_TRANSLATED.append("other")
 
 # def read_preds_and_refs(pred_files, ref_files, prompt_files=None):
 #     """Read the predictions and references from the files."""
@@ -375,6 +380,8 @@ def main():
     parser.add_argument("--preds", help="files with predictions", type=str)
     parser.add_argument("--preds-include-prompt", action="store_true",
                         help="the preds include the prompt, so it should be removed")
+    parser.add_argument("--translate-preds", action="store_true",
+                        help="translate the predictions")
     parser.add_argument("--prompts", help="files with prompts", type=str)
     parser.add_argument("--refs", help="files with references", type=str)
     parser.add_argument("--lemma-freq-file", help="file with lemma frequencies")
@@ -390,6 +397,28 @@ def main():
 
     preds, refs, prompts = read_files(args.preds, args.refs, args.prompts, refs_range=args.refs_range)
 
+    if args.translate_preds:
+        for i, pred in enumerate(preds):
+            # print(pred)
+            (pred_num, pred_case, pred_person) = parse_answer_line(pred)
+            # print(f"pred_num: {pred_num}, pred_case: {pred_case}, pred_person: {pred_person}")
+
+            if pred_num and pred_num in NUM_LABELS_TRANSLATED:
+                translated_num = NUM_LABELS[ NUM_LABELS_TRANSLATED.index(pred_num) ]
+            else:
+                translated_num = "other"
+            if pred_case and pred_case in CASE_LABELS_TRANSLATED:
+                translated_case = CASE_LABELS[ CASE_LABELS_TRANSLATED.index(pred_case) ]
+            else:
+                translated_case = "other"
+            if pred_person and pred_person in PERSON_LABELS_TRANSLATED:
+                translated_person = PERSON_LABELS[ PERSON_LABELS_TRANSLATED.index(pred_person) ]
+            else:
+                translated_person = "other"
+
+            preds[i] = f'{translated_num}, {translated_case}, {translated_person}'
+            # print(preds[i])
+    
     if prompts:
         assert len(prompts) == len(refs), "Number of prompts and references should be the same"
         if args.preds_include_prompt:
