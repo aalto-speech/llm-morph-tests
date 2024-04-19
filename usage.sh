@@ -25,29 +25,21 @@ grep ADJ omorfi/src/lexemes.tsv \
 
 
 # dump the inflected forms of the filtered lexemes from the FST 
-bash src/bash/generate-wordlist-withtags-nouns.sh \
-    ../data/omorfi_noun_lexemes_filtered.txt \
-    ../data/omorfi_noun_lexemes_filtered_inflected.txt
 
-bash src/bash/generate-wordlist-withtags-verbs.sh \
-    ../data/omorfi_verb_lexemes_filtered.txt \
-    ../data/omorfi_verb_lexemes_filtered_inflected.txt
+# verbs
+bash src/bash/generate-wordlist-withtags.sh \
+    data/omorfi_verb_lexemes_filtered.txt \
+    data/omorfi_verb_lexemes_filtered_inflected.txt
 
-bash src/bash/generate-wordlist-withtags-adj.sh \
-    ../data/omorfi_adj_lexemes_filtered.txt \
-    ../data/omorfi_adj_lexemes_filtered_inflected.txt
-
-
-filenumber=5
-bash src/bash/generate-wordlist-withtags-nouns-parallel.sh \
-    ../data/omorfi_noun_lexemes_filtered.txt.tail84000.0${filenumber} \
-    ../data/omorfi_noun_lexemes_filtered_inflected.txt.0${filenumber} \
-    temp${filenumber}
-
-filenumber=20
-bash src/bash/generate-wordlist-withtags-nouns-parallel.sh \
-    ../data/omorfi_noun_lexemes_filtered.txt.tail84000.${filenumber} \
-    ../data/omorfi_noun_lexemes_filtered_inflected.txt.${filenumber} \
+# do nouns in parallel since there are many
+split -d -l 4000 \
+    data/omorfi_noun_lexemes_filtered.txt \
+    data/omorfi_noun_lexemes_filtered.txt.
+screen
+filenumber=0
+bash generate-wordlist-withtags-nouns.sh \
+    data/omorfi_noun_lexemes_filtered.txt.0${filenumber} \
+    data/omorfi_noun_lexemes_filtered_inflected.txt.0${filenumber} \
     temp${filenumber}
 
     
