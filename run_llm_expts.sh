@@ -73,10 +73,10 @@ done
 #### run llama
 n_shot=5
 
-sbatch --gres=gpu:1 run_llama.sh "7b" ${expt_dir}/data/prompts_${n_shot}shot.json
+sbatch --gres=gpu:1 llama.slrm "7b" ${expt_dir}/data/prompts_${n_shot}shot.json
 
 sbatch --gres=gpu:8 --time=12:00:00 --dependency=afterany:29199073 \
-    run_llama.sh "70b" ${expt_dir}/data/prompts_${n_shot}shot.json
+    llama.slrm "70b" ${expt_dir}/data/prompts_${n_shot}shot.json
 
 
 #### run poro
@@ -86,7 +86,7 @@ sbatch --gres=gpu:8 --time=12:00:00 --dependency=afterany:29199073 \
 n_shot=5
 model_name='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
 sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
-    run_poro.sh \
+    poro.slrm \
     $model_name \
     ${expt_dir}/data/prompts_${n_shot}shot.json \
     0.3
