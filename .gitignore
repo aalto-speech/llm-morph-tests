@@ -19,9 +19,11 @@ data/*.txt*
 data/*.backup
 lemma2feats*
 data/inflected_shortlist_nouns/omorstrings.txt
+data/fairseq
 
 # other
 log
 data/stats
 data/inflected_1000_nouns
 __pycache__
+checkpoints

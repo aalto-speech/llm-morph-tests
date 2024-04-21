@@ -2,40 +2,8 @@ import argparse
 import ast
 import json
 from freq_stats_from_conllu import read_freq_stats
+from common import NUM_LABELS, CASE_LABELS, PERSON_LABELS, NUM_LABELS_TRANSLATED, CASE_LABELS_TRANSLATED, PERSON_LABELS_TRANSLATED
 
-NUM_LABELS = ["yksikkö", "monikko", "other"]
-NUM_LABELS_TRANSLATED = ["Sing", "Plur", "other"]
-
-PERSON_LABELS = ["yksikön ensimmäinen persoona",
-    "yksikön toinen persoona",
-    # "yksikön kolmas persoona", 
-    "monikon ensimmäinen persoona",
-    "monikon toinen persoona",
-    # "monikon kolmas persoona",
-    "kolmas persoona",
-    "other",
-    ]
-PERSON_LABELS_TRANSLATED = ["Sing1", "Sing2", "Plur1", "Plur2", "3", "other"]
-
-CASE_LABELS_RAW = """ ABE-    abessiivi-       vajanto    -     abessive    -    talotta
-    ABL-    ablatiivi-       ulkoeronto  -    ablative    -    talolta
-    ADE-    adessiivi-       ulko-olento  -   adessive    -    talolla
-    ALL-    allatiivi-       ulkotulento  -   allative    -    talolle
-    ELA-    elatiivi-        sisäeronto   -   elative     -    talosta
-    ESS-    essiivi-         olento      -    essive       -   talona
-    GEN-    genetiivi-       omanto      -    genitive     -   talon
-    ILL-    illatiivi-       sisätulento  -   illative     -   taloon
-    INE-    inessiivi -      sisäolento   -   inessive      -  talossa
-    NOM-    nominatiivi -    nimentö     -    nominative   -   talo
-    PAR-    partitiivi  -    osanto      -    partitive    -   taloa
-    TRA-    translatiivi  -  tulento    -     translative  -   taloksi"""
-    # INS-    instruktiivi-    keinonto     -   instructive   -  taloin
-    # COM-    komitatiivi -    seuranto     -   comitative   -   taloineen
-CASE_LABELS = [label.split("-")[1].strip() for label in CASE_LABELS_RAW.split("\n")]
-CASE_LABELS.append("other")
-
-CASE_LABELS_TRANSLATED = [label.split("-")[0].strip().lower().capitalize() for label in CASE_LABELS_RAW.split("\n")]
-CASE_LABELS_TRANSLATED.append("other")
 
 # def read_preds_and_refs(pred_files, ref_files, prompt_files=None):
 #     """Read the predictions and references from the files."""
@@ -254,16 +222,6 @@ def get_avg_accuracies(preds, refs, verbose=True):
 
     return results
 
-
-def parse_feats_from_omorstring(omorstr):
-    """Omorstring is in form
-    [WORD_ID=ulkogrilli][UPOS=NOUN][NUM=PL][CASE=TRA][POSS=PL2]
-    
-    parse these to
-    
-    {'WORD_ID': 'ulkogrilli', 'UPOS': 'NOUN', 'NUM': 'PL', 'CASE': 'TRA', 'POSS': 'PL2'}
-    """
-    pass
 
 
 def parse_lemma_form_from_prompt(prompt):

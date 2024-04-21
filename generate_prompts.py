@@ -6,6 +6,7 @@ import pickle as pkl
 from os import path, makedirs
 import json
 from tqdm import tqdm
+from common import parse_omorstring
 
 def fill_template_random_egs(eg_word_forms, eg_word_answers, test_word, test_word_answer):
     template = 'Luokittele suomenkieliset sanat seuraaviin morfologisiin kategorioihin:'
@@ -62,16 +63,13 @@ def parse_sample(line):
     omorstring = splitted[0]
     word_form = splitted[1]
 
-    lemma = re.search(r'(?<=WORD_ID=).*?(?=])', omorstring).group()
-    number = re.search(r'(?<=NUM=).*?(?=])', omorstring).group()
-    gcase = re.search(r'(?<=CASE=).*?(?=])', omorstring).group()
-    possessive = re.search(r'(?<=POSS=).*?(?=])', omorstring).group()
+    parsed_ostr = parse_omorstring(omorstring)
 
-    conv_number = convert_label(number, 'data/grammar/finnish-numbers.txt')
-    conv_gcase = convert_label(gcase, 'data/grammar/finnish-cases.txt')
-    conv_possessive = convert_label(possessive, 'data/grammar/finnish-persons.txt')
+    conv_number = convert_label(parsed_ostr['number'], 'data/grammar/finnish-numbers.txt')
+    conv_gcase = convert_label(parsed_ostr['gcase'], 'data/grammar/finnish-cases.txt')
+    conv_possessive = convert_label(parsed_ostr['possessive'], 'data/grammar/finnish-persons.txt')
 
-    return {'word': word_form, 'lemma': lemma, 'number': conv_number,
+    return {'word': word_form, 'lemma': parsed_ostr['lemma'], 'number': conv_number,
             'case': conv_gcase, 'poss': conv_possessive, 'omorstring': omorstring}
 
 
