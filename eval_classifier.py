@@ -1,4 +1,4 @@
-import os
+# import os
 from fairseq import checkpoint_utils, data, options, tasks
 
 # Parse command-line arguments for generation
@@ -13,10 +13,11 @@ print(f'| loading model from {args.path}')
 models, _model_args = checkpoint_utils.load_model_ensemble([args.path], task=task)
 model = models[0]
 
-prefix = os.path.join(args.data, f'test.input-{args.target_lang}')
+# prefix = os.path.join(args.data, f'test.input-{args.target_lang}')
 
 all_preds = []
-with open(prefix + '.input', encoding='utf-8') as file:
+# with open(prefix + '.input', encoding='utf-8') as file:
+with open(args.test_set + '.input', encoding='utf-8') as file:
     for line in file:
         sentence = line.strip()
 
@@ -47,7 +48,8 @@ with open(prefix + '.input', encoding='utf-8') as file:
         # get the top prediction 
         all_preds.append(task.target_dictionary.string([top_labels[0]]))
 
-with open(prefix + f'.{args.target_lang}', 'r', encoding="utf-8") as f:
+# with open(prefix + f'.{args.target_lang}', 'r', encoding="utf-8") as f:
+with open(args.test_set + f'.{args.target_lang}', 'r', encoding="utf-8") as f:
     labels = [l.strip() for l in f.readlines()]
 
 correct = 0
