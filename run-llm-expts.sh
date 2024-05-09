@@ -86,7 +86,7 @@ sbatch --gres=gpu:8 --time=12:00:00 --dependency=afterany:29199073 \
 n_shot=5
 model_name='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
 sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
-    poro.slrm \
+    slrm-poro.sh \
     $model_name \
     ${expt_dir}/data/prompts_${n_shot}shot.json \
     0.3
@@ -178,6 +178,21 @@ python evaluate.py \
     --acc-wrt-freq \
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
     --form-freq-file $word_form_freq_file \
+    # --lemma-freq-file $lemma_freq_file
+
+
+expt_dir="expts/prelim3000_incorrect_peukalo"
+n_shot=1
+model_name="llama2_70b"
+python evaluate.py \
+    --refs ${expt_dir}/data/refs.json \
+    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
+    --out ${expt_dir}/results_${n_shot}shot_${model_name}_new.txt \
+    --acc-wrt-freq \
+    --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
+    --form-freq-from-corpus-file ${expt_dir}/data/samples_with_freqs_from_corpus.json
+
+    # --form-freq-file $word_form_freq_file \
     # --lemma-freq-file $lemma_freq_file
 
 

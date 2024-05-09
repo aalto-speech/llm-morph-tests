@@ -62,12 +62,12 @@ python eval_classifier.py \
 
 
 #### preprocess json files
-# clstype="person"
+clstype="person"
 # clstype="number"
-clstype="case"
+# clstype="case"
 datadir=data/fairseq/prelim3000
-# subset_size=50000
-subset_size=10k
+subset_size=50000
+# subset_size=10k
 
 python preprocess.py \
     --wordforms-json expts/prelim3000/data/samples.json \

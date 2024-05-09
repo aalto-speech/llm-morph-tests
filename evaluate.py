@@ -226,13 +226,20 @@ def get_avg_accuracies(preds, refs, verbose=True):
 
 def parse_lemma_form_from_prompt(prompt):
     form_lemma = prompt.split('\n')[-1]
-    return form_lemma.split('--')[1].strip(), form_lemma.split('--')[1].strip()
+    return form_lemma.split('--')[1].strip(), form_lemma.split('--')[0].strip()
 
 
 
 def plot_accuracy_wrt_freq(matches, keys, freqs, title):
     """Plot accuracy wrt frequency.
-    Also calculate how much accuracy correlates with frequency."""
+    Also calculate how much accuracy correlates with frequency.
+    
+    Parameters:
+    matches: list of boolean values of whether the prediction is correct
+    keys: list of keys to match the frequencies
+    freqs: dict of frequencies
+    title: title of the plot
+    """
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -248,6 +255,8 @@ def plot_accuracy_wrt_freq(matches, keys, freqs, title):
                 freqs2accs[freqs[key]].append(match)
             else:
                 freqs2accs[freqs[key]] = [match]
+
+    print(freqs2accs)
 
     plt.scatter(freqs2accs.keys(), [np.mean(v) for v in freqs2accs.values()])
     plt.xlabel(f"{title} frequency")
@@ -344,6 +353,7 @@ def main():
     parser.add_argument("--refs", help="files with references", type=str)
     parser.add_argument("--lemma-freq-file", help="file with lemma frequencies")
     parser.add_argument("--form-freq-file", help="file with form frequencies")
+    parser.add_argument("--form-freq-from-corpus-file", help="file with form frequencies from corpus")
     parser.add_argument("--feats-freq-file", help="file with feature frequencies")
     parser.add_argument("--acc-wrt-freq", action="store_true",
                         help="plot accuracy wrt frequency")
@@ -421,6 +431,14 @@ def main():
                 fig_title = "form"
                 freq_dict_keys = [parse_lemma_form_from_prompt(prompt)[1] for prompt in prompts]
                 # print(f"freq_dict_keys: {freq_dict_keys}")
+
+                plot_accuracy_wrt_freq(ems['person'], freq_dict_keys, freqs, fig_title)
+
+            if args.form_freq_from_corpus_file:
+                with open(args.form_freq_from_corpus_file, "r", encoding="utf-8") as f:
+                    freqs = json.load(f)
+                fig_title = "form_from_corpus_person"
+                freq_dict_keys = [f"{parse_lemma_form_from_prompt(prompt)[1]} -- {parse_lemma_form_from_prompt(prompt)[0]}" for prompt in prompts]
 
                 plot_accuracy_wrt_freq(ems['person'], freq_dict_keys, freqs, fig_title)
 
