@@ -1,0 +1,4 @@
+Number: 0.368
+Case: 0.0975
+Person: 0.488
+Complete: 0.0165

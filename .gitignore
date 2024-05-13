@@ -27,3 +27,4 @@ data/stats
 data/inflected_1000_nouns
 __pycache__
 checkpoints
+evaluation

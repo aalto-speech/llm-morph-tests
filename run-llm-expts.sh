@@ -67,30 +67,92 @@ do
         --output_dir ${expt_dir}/data
 done
 
+
+#### generate prompts from the real corpus set with frequencies
+# inflected="data/form_freqs_lower_10m_forms_and_freqs_filtered_seplines.txt"
+# inflected="data/inflected_1000_nouns/inflected_new_filtered_sorted.txt"
+inflected=data/omorfi_noun_lexemes_filtered_inflected_all_filtered_form2feats_random5k.txt 
+expt_dir="expts/random2000"
+
+word_class="noun"
+python generate_prompts.py \
+    --inflected $inflected \
+    --n_shot 0 \
+    --n_samples 2000 \
+    --word_class $word_class \
+    --output_dir ${expt_dir}/data
+
+for n_shot in 1 5 10
+do
+    python generate_prompts.py \
+        --samples ${expt_dir}/data/samples.json \
+        --n_shot $n_shot \
+        --output_dir ${expt_dir}/data
+done
+
 ###############################################################################
 #### run LLMs
 
-#### run llama
-n_shot=5
+#### run llama-2
+n_shot=1
 
 sbatch --gres=gpu:1 llama.slrm "7b" ${expt_dir}/data/prompts_${n_shot}shot.json
 
-sbatch --gres=gpu:8 --time=12:00:00 --dependency=afterany:29199073 \
-    llama.slrm "70b" ${expt_dir}/data/prompts_${n_shot}shot.json
+expt_dir="expts/random2000"
+llama_v="7b"
+n_shot=10
+sbatch  --time=6:00:00 -A dgx-spa --partition dgx-spa --gres=gpu:v100:1 \
+    --dependency=afterany:31391942,31391944,31391945,31391947,31391949,31391950 \
+    slrm-llama.sh \
+    $llama_v \
+    ${expt_dir}/data/prompts_${n_shot}shot.json
+
+
+sbatch  --time=6:00:00 -A dgx-spa --partition dgx-spa --gres=gpu:v100:1 \
+    slrm-llama.sh \
+    $llama_v \
+    ${expt_dir}/data/prompts_${n_shot}shot.json
+
+
+#SBATCH --partition dgx-spa
+#SBATCH -A dgx-spa
+
+#### run llama-3 --- skip this since there is no time & it's not important
+hub_dir=/scratch/shareddata/dldata/huggingface-hub-cache/hub/
+
+# 70b
+model="${hub_dir}/models--meta-llama--Meta-Llama-3-70B/snapshots/7cde9a27957f27ce5677b1f838ccaeeb69acc8d0/"
+
+# 8b
+model="${hub_dir}/models--meta-llama--Meta-Llama-3-8B/snapshots/b6887ce03ea47d068bf8502ba6ed27f8c5c12a6b/"
+
+expt_dir="expts/random2000"
+n_shot=0
+sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
+    slrm-transformers.sh \
+    $model \
+    ${expt_dir}/data/prompts_${n_shot}shot.json \
+    0.5 \
+    llama3_8b
+
 
 
 #### run poro
 # --partition=gpu,dgx-common 
 # sbatch --gres=gpu:2 --mem=3GB --partition=gpu,gpushort \
 # model_name='TurkuNLP/gpt3-finnish-small'
-n_shot=5
-model_name='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
-sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
-    slrm-poro.sh \
-    $model_name \
+expt_dir="expts/random2000"
+n_shot=10
+model='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
+sbatch --time=24:00:00 --dependency=afterany:31391838 -A dgx-spa --partition dgx-spa \
+    slrm-transformers.sh \
+    $model \
     ${expt_dir}/data/prompts_${n_shot}shot.json \
-    0.3
+    0.5 \
+    poro
 
+-A dgx-spa --partition dgx-spa 
+--partition=gpu --gres=gpu:v100:3
 
 #### run GPT-4
 expt_dir="expts/prelim3000"
@@ -115,30 +177,34 @@ done
 #### evaluate
 
 # evaluate llama
-expt_dir="expts/prelim3000"
-n_shot=10
-model_name="llama2_70b"
-python evaluate.py \
-    --refs ${expt_dir}/data/refs.json \
-    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
-    --out ${expt_dir}/results_${n_shot}shot_${model_name}.txt
+expt_dir="expts/random2000"
+for model_name in llama2_7b
+do
+    for n_shot in 10
+    do
+        python evaluate.py \
+            --refs ${expt_dir}/data/refs.json \
+            --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
+            --out ${expt_dir}/results_${n_shot}shot_${model_name}.txt
+    done
+done
 
 # evaluate poro
-expt_dir="expts/prelim3000"
-n_shot=5
+expt_dir="expts/random2000"
 model_name="poro"
-temp=0.1
-(set -x; python evaluate.py \
-    --refs ${expt_dir}/data/refs.json \
-    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp${temp}.jsonl \
-    --preds-include-prompt \
-    --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
-    --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp${temp}.txt)
-
+temp=0.5
+for n_shot in 1 5
+do
+    (set -x; python evaluate.py \
+        --refs ${expt_dir}/data/refs.json \
+        --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp${temp}.jsonl \
+        --preds-include-prompt \
+        --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
+        --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp${temp}.txt)
+done
 
 # evaluate gpt4
 expt_dir="expts/prelim3000"
-# n_shot=1
 # model_name="gpt4-turbo"
 sample_range="0-100"
 for n_shot in 0 1 3 10
@@ -197,11 +263,10 @@ python evaluate.py \
 
 
 #### confusion matrix
-expt_dir="expts/prelim3000"
-# model_name="llama2_70b"
+expt_dir="expts/random2000"
 model_name="poro"
-n_shot=5
-temp=0.3
+n_shot=10
+temp=0.5
 python evaluate.py \
     --refs ${expt_dir}/data/refs.json \
     --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp${temp}.jsonl \
@@ -209,6 +274,16 @@ python evaluate.py \
     --confusion \
     --preds-include-prompt \
     --prompts ${expt_dir}/data/prompts_${n_shot}shot.json
+
+# llama
+expt_dir="expts/random2000"
+model_name="llama2_70b"
+n_shot=10
+python evaluate.py \
+    --refs ${expt_dir}/data/refs.json \
+    --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
+    --out ${expt_dir}/confusion_matrix_${n_shot}shot_${model_name}.png \
+    --confusion
 
 
 expt_dir="expts/prelim3000"

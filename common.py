@@ -13,11 +13,16 @@ FIN_NUM_CLASSES_UNIMORPH = {
     "PL": 1,
 }
 FIN_PERSON_CLASSES = {
-    "yksikön ensimmäinen persoona": 0,
-    "yksikön toinen persoona": 1,
-    "monikon ensimmäinen persoona": 2,
-    "monikon toinen persoona": 3,
-    "kolmas persoona": 4,
+    # "yksikön ensimmäinen persoona": 0,
+    # "yksikön toinen persoona": 1,
+    # "monikon ensimmäinen persoona": 2,
+    # "monikon toinen persoona": 3,
+    # "kolmas persoona": 4,
+    "1. persoonan yksikkö": 0,
+    "2. persoonan yksikkö": 1,
+    "1. persoonan monikko": 2,
+    "2. persoonan monikko": 3,
+    "3. persoona": 4,
 }
 FIN_PERSON_CLASSES_UDEP = {
     "Sing1": 0,
@@ -74,39 +79,90 @@ FIN_FEATS_CLASSES = {
 }
 
 
-NUM_LABELS = ["yksikkö", "monikko", "other"]
-NUM_LABELS_TRANSLATED = ["Sing", "Plur", "other"]
+NUM_LABELS = {
+    "yksikkö": "SG",
+    "monikko": "PL",
+    "Sing": "SG",
+    "Plur": "PL",
+    "SG": "SG",
+    "PL": "PL",
+    "other": "other",
+}
 
-PERSON_LABELS = ["yksikön ensimmäinen persoona",
-    "yksikön toinen persoona",
-    # "yksikön kolmas persoona", 
-    "monikon ensimmäinen persoona",
-    "monikon toinen persoona",
-    # "monikon kolmas persoona",
-    "kolmas persoona",
-    "other",
-    ]
-PERSON_LABELS_TRANSLATED = ["Sing1", "Sing2", "Plur1", "Plur2", "3", "other"]
+PERSON_LABELS = {
+    "yksikön ensimmäinen persoona": "SG1",
+    "yksikön toinen persoona": "SG2",
+    "yksikön kolmas persoona": "3",
+    "monikon ensimmäinen persoona": "PL1",
+    "monikon toinen persoona": "PL2",
+    "monikon kolmas persoona": "3",
+    "kolmas persoona": "3",
+    "1. persoonan yksikkö": "SG1",
+    "2. persoonan yksikkö": "SG2",
+    "1. persoonan monikko": "PL1",
+    "2. persoonan monikko": "PL2",
+    "3. persoona": "3",
+    "3. persoonan yksikkö": "3",
+    "3. persoonan monikko": "3",
+    "Sing1": "SG1",
+    "Sing2": "SG2",
+    "Plur1": "PL1",
+    "Plur2": "PL2",
+    "3": "3",
+    "other": "other",
+}
 
-CASE_LABELS_RAW = """ ABE-    abessiivi-       vajanto    -     abessive    -    talotta
-    ABL-    ablatiivi-       ulkoeronto  -    ablative    -    talolta
-    ADE-    adessiivi-       ulko-olento  -   adessive    -    talolla
-    ALL-    allatiivi-       ulkotulento  -   allative    -    talolle
-    ELA-    elatiivi-        sisäeronto   -   elative     -    talosta
-    ESS-    essiivi-         olento      -    essive       -   talona
-    GEN-    genetiivi-       omanto      -    genitive     -   talon
-    ILL-    illatiivi-       sisätulento  -   illative     -   taloon
-    INE-    inessiivi -      sisäolento   -   inessive      -  talossa
-    NOM-    nominatiivi -    nimentö     -    nominative   -   talo
-    PAR-    partitiivi  -    osanto      -    partitive    -   taloa
-    TRA-    translatiivi  -  tulento    -     translative  -   taloksi"""
-    # INS-    instruktiivi-    keinonto     -   instructive   -  taloin
-    # COM-    komitatiivi -    seuranto     -   comitative   -   taloineen
-CASE_LABELS = [label.split("-")[1].strip() for label in CASE_LABELS_RAW.split("\n")]
-CASE_LABELS.append("other")
+CASE_LABELS = {
+    "abessiivi": "ABE",
+    "ablatiivi": "ABL",
+    "adessiivi": "ADE",
+    "allatiivi": "ALL",
+    "elatiivi": "ELA",
+    "essiivi": "ESS",
+    "genetiivi": "GEN",
+    "illatiivi": "ILL",
+    "inessiivi": "INE",
+    "instruktiivi": "INS",
+    "nominatiivi": "NOM",
+    "partitiivi": "PAR",
+    "translatiivi": "TRA",
+    "komitatiivi": "COM",
+    "Abe": "ABE",
+    "Abl": "ABL",
+    "Ade": "ADE",
+    "All": "ALL",
+    "Ela": "ELA",
+    "Ess": "ESS",
+    "Gen": "GEN",
+    "Ill": "ILL",
+    "Ine": "INE",
+    "Ins": "INS",
+    "Nom": "NOM",
+    "Par": "PAR",
+    "Tra": "TRA",
+    "Com": "COM",
+    "other": "other",
+}
 
-CASE_LABELS_TRANSLATED = [label.split("-")[0].strip().lower().capitalize() for label in CASE_LABELS_RAW.split("\n")]
-CASE_LABELS_TRANSLATED.append("other")
+# CASE_LABELS_RAW = """ ABE-    abessiivi-       vajanto    -     abessive    -    talotta
+#     ABL-    ablatiivi-       ulkoeronto  -    ablative    -    talolta
+#     ADE-    adessiivi-       ulko-olento  -   adessive    -    talolla
+#     ALL-    allatiivi-       ulkotulento  -   allative    -    talolle
+#     ELA-    elatiivi-        sisäeronto   -   elative     -    talosta
+#     ESS-    essiivi-         olento      -    essive       -   talona
+#     GEN-    genetiivi-       omanto      -    genitive     -   talon
+#     ILL-    illatiivi-       sisätulento  -   illative     -   taloon
+#     INE-    inessiivi -      sisäolento   -   inessive      -  talossa
+#     NOM-    nominatiivi -    nimentö     -    nominative   -   talo
+#     PAR-    partitiivi  -    osanto      -    partitive    -   taloa
+#     TRA-    translatiivi  -  tulento    -     translative  -   taloksi"""
+#     # INS-    instruktiivi-    keinonto     -   instructive   -  taloin
+#     # COM-    komitatiivi -    seuranto     -   comitative   -   taloineen
+# CASE_LABELS = [label.split("-")[1].strip() for label in CASE_LABELS_RAW.split("\n")]
+# CASE_LABELS.append("other")
+
+# CASE_LABELS_TRANSLATED = [label.split("-")[0].strip().lower().capitalize() for label in CASE_LABELS_RAW.split("\n")]
+# CASE_LABELS_TRANSLATED.append("other")
 
 
 def parse_omorstring(omorstring):

@@ -25,21 +25,21 @@ def fill_noun_template(test_word, n_shot=5):
     template += '\ntaivutusmuoto -- perusmuoto, luku, sijamuoto, omistusliite\n'
 
     if n_shot >= 1:
-        template += '\nvedessämme -- vesi, yksikkö, inessiivi, monikon ensimmäinen persoona'
+        template += '\nvedessämme -- vesi, yksikkö, inessiivi, 1. persoonan monikko'
     if n_shot >= 2:
-        template += '\nrehtiyksiesi -- rehtiys, monikko, genetiivi, yksikön toinen persoona'
+        template += '\nkinoksiksensa -- kinos, monikko, translatiivi, 3. persoona'
     if n_shot >= 3:
-        template += '\npeukalostanne -- peukalo, yksikkö, elatiivi, monikon toinen persoona'
+        template += '\npeukalostanne -- peukalo, yksikkö, elatiivi, 2. persoonan monikko'
     if n_shot >= 4:
-        template += '\nkoivuumme -- koivu, yksikkö, illatiivi, monikon ensimmäinen persoona'
+        template += '\nhuurteenani -- huurre, yksikkö, essiivi, 1. persoonan yksikkö'
     if n_shot >= 5:
-        template += '\nsängiltään -- sänki, monikko, ablatiivi, yksikön kolmas persoona'
+        template += '\nsängiltäsi -- sänki, monikko, ablatiivi, 2. persoonan yksikkö'
     if n_shot == 10:
-        template += '\nhuurteenani -- huurre, yksikkö, essiivi, yksikön ensimmäinen persoona'
-        template += '\nkaistojaan -- kaista, monikko, partitiivi, monikon kolmas persoona'
-        template += '\nkinoksiksensa -- kinos, monikko, translatiivi, yksikön kolmas persoona'
-        template += '\nlaaksoillani -- laakso, monikko, adessiivi, yksikön ensimmäinen persoona'
-        template += '\ntalollenne -- talo, yksikkö, allatiivi, monikon toinen persoona'
+        template += '\nkoivuumme -- koivu, yksikkö, illatiivi, 1. persoonan monikko'
+        template += '\nkaistojaan -- kaista, monikko, partitiivi, 3. persoona'
+        template += '\nrehtiyksiesi -- rehtiys, monikko, genetiivi, 2. persoonan yksikkö'
+        template += '\nlaaksoillani -- laakso, monikko, adessiivi, 1. persoonan yksikkö'
+        template += '\ntalollenne -- talo, yksikkö, allatiivi, 2. persoonan monikko'
 
     template += f'\n{test_word}'
 
@@ -59,44 +59,84 @@ def convert_label(input_form, mapping):
 
 
 def parse_sample(line):
+    """ the line is assumed to be in format:
+    <omorstring> <word_form>
+    """
     splitted = line.split()
     omorstring = splitted[0]
     word_form = splitted[1]
 
+    if len(splitted) > 2:
+        freq = splitted[2]
+    else:
+        freq = 0
+
     parsed_ostr = parse_omorstring(omorstring)
 
-    conv_number = convert_label(parsed_ostr['number'], 'data/grammar/finnish-numbers.txt')
-    conv_gcase = convert_label(parsed_ostr['gcase'], 'data/grammar/finnish-cases.txt')
-    conv_possessive = convert_label(parsed_ostr['possessive'], 'data/grammar/finnish-persons.txt')
+    try:
+        conv_number = convert_label(parsed_ostr['number'], 'data/grammar/finnish-numbers.txt')
+        conv_gcase = convert_label(parsed_ostr['case'], 'data/grammar/finnish-cases.txt')
+        conv_possessive = convert_label(parsed_ostr['person'], 'data/grammar/finnish-persons.txt')
+    except KeyError as e:
+        return None
 
     return {'word': word_form, 'lemma': parsed_ostr['lemma'], 'number': conv_number,
-            'case': conv_gcase, 'poss': conv_possessive, 'omorstring': omorstring}
+            'case': conv_gcase, 'poss': conv_possessive, 'omorstring': omorstring, 'freq': freq}
+
+
+def yield_lines(file):
+    with open(file, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                yield line
 
 
 def make_word2refs(inflected_file):
     """ Create dict of word forms to their references. The inflected file contains
     rows with omorstring as first column and inflected form in second column."""
 
-    with open(inflected_file, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+    # with open(inflected_file, "r", encoding="utf-8") as f:
+    #     lines = f.readlines()
 
     wordlemma2refs_dict = {}
-    for line in tqdm(lines, desc="Parsing omorstrings"):
-        parsed = parse_sample(line)
+    for line in tqdm(yield_lines(inflected_file), desc="Parsing omorstrings"):
+        if '|' in line:
+            word_form = line.split(':')[0]
+            omorstrs = line.split(':')[1].split('|')
+            for omo in omorstrs:
+                parsed = parse_sample(omo + ' ' + word_form)
+                if not parsed:
+                    continue
+                w_and_l = f"{parsed['word']} -- {parsed['lemma']}"
+                if w_and_l not in wordlemma2refs_dict:
+                    wordlemma2refs_dict[w_and_l] = []
+                wordlemma2refs_dict[w_and_l].append(
+                    (parsed['omorstring'], f"{parsed['number']}, {parsed['case']}, {parsed['poss']}")
+                )
 
-        w_and_l = f"{parsed['word']} -- {parsed['lemma']}"
-        if w_and_l not in wordlemma2refs_dict:
-            wordlemma2refs_dict[w_and_l] = []
-        wordlemma2refs_dict[w_and_l].append(
-            (parsed['omorstring'], f"{parsed['number']}, {parsed['case']}, {parsed['poss']}")
-        )
+        else:
+            line = line.split(':')
+            parsed = parse_sample(' '.join([line[1], line[0]]))
+
+            if not parsed:
+                print(f"Error: could not parse line {line}")
+                continue
+
+            w_and_l = f"{parsed['word']} -- {parsed['lemma']}"
+
+            # there may be multiple refs for one word form, so make a list of refs
+            if w_and_l not in wordlemma2refs_dict:
+                wordlemma2refs_dict[w_and_l] = []
+            wordlemma2refs_dict[w_and_l].append(
+                (parsed['omorstring'], f"{parsed['number']}, {parsed['case']}, {parsed['poss']}")
+            )
 
     # for word, feats in word2refs_dict.items():
     #     # all lemmas should be same for one word
     #     if len(set([ref.split(',')[0].strip() for ref in word2refs_dict[word]])) != 1:
     #         print(f"Error: multiple lemmas for word {word}:", word2refs_dict[word])
     #         exit(1)
-
+    print(len(wordlemma2refs_dict))
     return wordlemma2refs_dict
 
 
@@ -126,13 +166,16 @@ if __name__ == "__main__":
             word2refs = make_word2refs(args.inflected)
             with open(args.inflected + '.pkl', "wb") as f:
                 pkl.dump(word2refs, f)
+        
+        for a,b in word2refs.items():
+            print(a, b)
 
         # get random n_samples from input
         samples = random.sample(sorted(word2refs), args.n_samples)
         if path.isfile(f"{args.output_dir}/samples.json"):
             print(f"Error: file {args.output_dir}/samples.json already exists")
             exit(1)
-        with open(f"{args.output_dir}/samples.json",        "w", encoding="utf-8") as fsamples:
+        with open(f"{args.output_dir}/samples.json", "w", encoding="utf-8") as fsamples:
             fsamples.write(json.dumps(samples))
     else:
         with open(args.samples, "r", encoding="utf-8") as f:
@@ -174,8 +217,8 @@ if __name__ == "__main__":
         if path.isfile(f"{args.output_dir}/omorstrings.json"):
             print(f"Error: file {args.output_dir}/omorstrings.json already exists")
             exit(1)
-        with open(f"{args.output_dir}/refs.json",           "w", encoding="utf-8") as fref, \
-                open(f"{args.output_dir}/omorstrings.json",    "w", encoding="utf-8") as fomorstrings:
+        with open(f"{args.output_dir}/refs.json", "w", encoding="utf-8") as fref, \
+                open(f"{args.output_dir}/omorstrings.json", "w", encoding="utf-8") as fomorstrings:
             fref.write(json.dumps(refs))
             fomorstrings.write(json.dumps(omorstrings))
 
