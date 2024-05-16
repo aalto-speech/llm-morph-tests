@@ -59,16 +59,31 @@ def read_files(pred_file, ref_file, prompt_file=None, refs_range=None):
     return preds, refs, prompts
 
 
-def parse_answer_line(answer):
+def parse_answer_line(answer, cot=False, sample=None):
     """Parse the answer into a tuple of (number, case, person)."""
     if not answer:
         return ('', '', '')
 
+    # if multiple rows, check if the reference is in the answer
     if '\n' in answer:
-        answer = answer.split('\n')[0]
+        if sample and sample in answer:
+            answer = answer.split(sample)[1].split('\n')[0]
+        elif not cot: # take the first one that is not empty
+            rows = answer.split('\n')
+            for row in rows:
+                if row.strip():
+                    answer = row
+                    break
+        else: # take the last one
+            answer = answer.split('\n')[-1]
 
-    if '--' in answer: # remove the inflected form and also the base form
-        answer = ','.join(answer.split('--')[1].split(',')[1:])
+    # if -- is included take the second part
+    if '--' in answer:
+        afterdash = answer.split('--')[1].split(',')
+        if len(afterdash) == 4: # remove the inflected form and also the base form
+            answer = ','.join(afterdash[1:])
+        elif len(afterdash) == 3:
+            answer = ','.join(afterdash) # base form is probably omitted
 
     parsed = [i.strip() for i in answer.split(',') if i.strip()]
 
@@ -91,14 +106,14 @@ def parse_ref(refs):
     return [parse_answer_line(ref) for ref in refs if ref.strip()]
 
 
-def normalise_preds(pred):
+def normalise_preds(pred, sample, last_line=False):
     """Normalise the predictions."""
 
-    (pred_num, pred_case, pred_person) = parse_answer_line(pred)
+    (pred_num, pred_case, pred_person) = parse_answer_line(pred, sample=sample, cot=last_line)
 
     if pred_num not in NUM_LABELS:
         print(f"replacing pred_num {pred_num} with other")
-        print('full answer:', pred)
+        print('ref', sample, 'full answer:', pred)
         print()
         pred_num = "other"
     else:
@@ -365,6 +380,8 @@ def main():
     parser.add_argument("--out", help="output file")
     parser.add_argument("--confusion", help="plot confusion matrices", action="store_true")
     parser.add_argument("--refs-range", type=str, help="range of references to use")
+    parser.add_argument("--cot", type=str, help="check only the last line of the prediction", nargs='?', const='')
+    parser.add_argument("--samples", type=str, help="samples to check")
     args = parser.parse_args()
 
     if args.refs_range:
@@ -378,7 +395,16 @@ def main():
         if args.preds_include_prompt:
             preds = [pred[len(prompt):] for pred, prompt in zip(preds, prompts)]
 
-    normalised_preds = [normalise_preds(pred) for pred in preds]
+    if args.cot:
+        cot = True
+    else:
+        cot = False
+    if args.samples:
+        with open(args.samples, "r", encoding="utf-8") as f:
+            samples = json.load(f)
+        normalised_preds = [normalise_preds(pred, sample=sample, last_line=cot) for pred, sample in zip(preds, samples)]
+    else:
+        normalised_preds = [normalise_preds(pred, sample=None, last_line=cot) for pred in preds]
     normalised_refs = [normalise_refs(ref) for ref in refs]
 
     if args.confusion: # plot confusion matrices

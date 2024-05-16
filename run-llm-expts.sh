@@ -178,22 +178,10 @@ sbatch --time=8:00:00 --partition gpu --gres=gpu:v100:3 \
 
 #### run GPT-4
 expt_dir="expts/random2000"
-sample_range="400-1000"
 # remember to set max tokens to 800 if running CoT
 cotornot=""
-for n_shot in 10
-do
-    for model_name in gpt4-turbo
-    do
-        python inference_gpt.py \
-            --prompts ${expt_dir}/data/prompts_${n_shot}shot${cotornot}.json \
-            --model $model_name \
-            --sample-range $sample_range \
-            --out ${expt_dir}/data/prompts_${n_shot}shot${cotornot}_${model_name}_${sample_range}.jsonl
-    done
-done
-sample_range="100-1000"
-for n_shot in 10
+sample_range="1000-2000"
+for n_shot in 0 1 5 10
 do
     for model_name in gpt4-turbo
     do
@@ -207,14 +195,14 @@ done
 
 
 ########## combine files
-for n_shot in 1
+for n_shot in 1 5 10
 do
-    for model_name in gpt4-turbo
+    for model_name in gpt3.5-turbo
     do
         python combine_json.py \
-            --json_files  expts/random2000/data/prompts_${n_shot}shot_${model_name}_0-100.jsonl \
-                          expts/random2000/data/prompts_${n_shot}shot_${model_name}_100-1000.jsonl \
-            --output_file expts/random2000/data/prompts_${n_shot}shot_${model_name}_0-1000.jsonl
+            --json_files  expts/random2000/data/prompts_${n_shot}shot_${model_name}_0-1000.jsonl \
+                          expts/random2000/data/prompts_${n_shot}shot_${model_name}_1000-2000.jsonl \
+            --output_file expts/random2000/data/prompts_${n_shot}shot_${model_name}_0-2000.jsonl
     done
 done
 
@@ -224,9 +212,9 @@ done
 
 # evaluate llama
 expt_dir="expts/random2000"
-for model_name in llama2_7b
+for model_name in llama2_7b llama2_13b llama2_70b llama2_13b-chat llama2_70b-chat
 do
-    for n_shot in 10
+    for n_shot in 0 1 5 10
     do
         python evaluate.py \
             --refs ${expt_dir}/data/refs.json \
@@ -239,7 +227,7 @@ done
 expt_dir="expts/random2000"
 model_name="poro"
 temp=0.5
-for n_shot in 1 5
+for n_shot in 0 1 5 10
 do
     (set -x; python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
@@ -251,16 +239,22 @@ done
 
 # evaluate gpt4
 expt_dir="expts/random2000"
-sample_range="0-1000"
-for n_shot in 0 1 5 10
+sample_range="0-2000"
+cotornot=""
+for n_shot in 1 5 10
 do
-    for model_name in gpt4-turbo
+    for model_name in gpt3.5-turbo
     do
+        echo ""
+        echo "###################################################"
+        echo "Evaluating ${n_shot}shot${cotornot} ${model_name} ${sample_range}"
         python evaluate.py \
             --refs ${expt_dir}/data/refs.json \
-            --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl \
+            --preds ${expt_dir}/data/prompts_${n_shot}shot${cotornot}_${model_name}_${sample_range}.jsonl \
             --refs-range $sample_range \
-            --out ${expt_dir}/results_${n_shot}shot_${model_name}_${sample_range}_newparsing.txt
+            --out ${expt_dir}/results_${n_shot}shot${cotornot}_${model_name}_${sample_range}.txt \
+            --cot $cotornot \
+            --samples ${expt_dir}/data/samples.json
     done
 done
 
@@ -345,5 +339,26 @@ do
             --out ${expt_dir}/confusion_matrix_${n_shot}shot_${model_name}_${sample_range}_temp${temp}.png \
             --confusion \
             --refs-range $sample_range
+    done
+done
+
+expt_dir="expts/random2000"
+sample_range="0-2000"
+cotornot=""
+for n_shot in 10
+do
+    for model_name in gpt3.5-turbo
+    do
+        echo ""
+        echo "###################################################"
+        echo "Evaluating ${n_shot}shot${cotornot} ${model_name} ${sample_range}"
+        python evaluate.py \
+            --refs ${expt_dir}/data/refs.json \
+            --preds ${expt_dir}/data/prompts_${n_shot}shot${cotornot}_${model_name}_${sample_range}.jsonl \
+            --refs-range $sample_range \
+            --out ${expt_dir}/confusion_matrix_${n_shot}shot${cotornot}_${model_name}_${sample_range}_temp${temp}.png \
+            --cot $cotornot \
+            --confusion \
+            --samples ${expt_dir}/data/samples.json
     done
 done

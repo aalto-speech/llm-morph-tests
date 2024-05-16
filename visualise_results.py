@@ -50,7 +50,9 @@ if __name__ == '__main__':
 
     # Plot the results as a function of the prompttype int
     fig, ax = plt.subplots()
-    for model, results_per_category in results_per_model_and_category.items():
+    # for model, results_per_category in results_per_model_and_category.items():
+    for model in ['gpt4-turbo', 'gpt3.5-turbo', 'llama2-70b', 'poro']:
+        results_per_category = results_per_model_and_category[model]
         # x is prompttype, y is accuracy
 
         # set color palette
@@ -71,17 +73,12 @@ if __name__ == '__main__':
     ax.set_xticks(x)
     ax.set_xticklabels(x)
     # y from 0 to 1
-    ax.set_ylim(-0.1, 1)
-    
+    ax.set_ylim(-0.05, 1)
+
     # figure size
-    fig.set_size_inches(5, 6)
-    
-            
-            
-            
-    ax.set_xlabel('Prompt type')
+    fig.set_size_inches(4, 5)
+
+    ax.set_xlabel('Number of examples in prompt')
     ax.set_ylabel('Accuracy')
     ax.legend()
     plt.savefig(args.output)
-    
-        

@@ -22,6 +22,8 @@ lemma2feats*
 data/inflected_shortlist_nouns/omorstrings.txt
 data/fairseq
 
+!expts/random2000/data/prompts_*shot_gpt4-turbo_0-1000.jsonl
+
 # other
 log
 data/stats

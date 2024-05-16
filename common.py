@@ -110,6 +110,20 @@ PERSON_LABELS = {
     "Plur2": "PL2",
     "3": "3",
     "other": "other",
+
+    "1. persoonan yksikön omistusliite": "SG1",
+    "2. persoonan yksikön omistusliite": "SG2",
+    "3. persoonan yksikön omistusliite": "3",
+    "1. persoonan monikon omistusliite": "PL1",
+    "2. persoonan monikon omistusliite": "PL2",
+    "3. persoonan monikon omistusliite": "3",
+
+    "ensimmäisen persoonan yksikkö": "SG1",
+    "toisen persoonan yksikkö": "SG2",
+    "kolmannen persoonan yksikkö": "3",
+    "ensimmäisen persoonan monikko": "PL1",
+    "toisen persoonan monikko": "PL2",
+    "kolmannen persoonan monikko": "3",
 }
 
 CASE_LABELS = {
@@ -122,11 +136,11 @@ CASE_LABELS = {
     "genetiivi": "GEN",
     "illatiivi": "ILL",
     "inessiivi": "INE",
-    "instruktiivi": "INS",
+    "instruktiivi": "other", # "INS",
     "nominatiivi": "NOM",
     "partitiivi": "PAR",
     "translatiivi": "TRA",
-    "komitatiivi": "COM",
+    "komitatiivi": "other", # "COM",
     "Abe": "ABE",
     "Abl": "ABL",
     "Ade": "ADE",
@@ -136,11 +150,11 @@ CASE_LABELS = {
     "Gen": "GEN",
     "Ill": "ILL",
     "Ine": "INE",
-    "Ins": "INS",
+    "Ins": "other", #"INS",
     "Nom": "NOM",
     "Par": "PAR",
     "Tra": "TRA",
-    "Com": "COM",
+    "Com": "other", #"COM",
     "other": "other",
 }
 
