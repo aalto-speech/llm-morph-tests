@@ -82,11 +82,21 @@ python generate_prompts.py \
     --word_class $word_class \
     --output_dir ${expt_dir}/data
 
-for n_shot in 1 5 10
+for n_shot in 0
 do
     python generate_prompts.py \
         --samples ${expt_dir}/data/samples.json \
         --n_shot $n_shot \
+        --output_dir ${expt_dir}/data
+done
+
+# chain of thought
+for n_shot in 1
+do
+    python generate_prompts.py \
+        --samples ${expt_dir}/data/samples.json \
+        --n_shot $n_shot \
+        --cot \
         --output_dir ${expt_dir}/data
 done
 
@@ -113,6 +123,17 @@ sbatch  --time=6:00:00 -A dgx-spa --partition dgx-spa --gres=gpu:v100:1 \
     $llama_v \
     ${expt_dir}/data/prompts_${n_shot}shot.json
 
+
+# CoT
+expt_dir="expts/random2000"
+llama_v="70b-chat"
+sbatch  --time=16:00:00 -A dgx-spa --partition dgx-spa --gres=gpu:v100:8 \
+    --dependency=afterany:31400814 \
+    slrm-llama.sh \
+    $llama_v \
+    ${expt_dir}/data/prompts_1shot_cot.json
+    
+    
 
 #SBATCH --partition dgx-spa
 #SBATCH -A dgx-spa
@@ -142,12 +163,13 @@ sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa \
 # sbatch --gres=gpu:2 --mem=3GB --partition=gpu,gpushort \
 # model_name='TurkuNLP/gpt3-finnish-small'
 expt_dir="expts/random2000"
-n_shot=10
+n_shot=1
+cotornot="_cot"
 model='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
-sbatch --time=24:00:00 --dependency=afterany:31391838 -A dgx-spa --partition dgx-spa \
+sbatch --time=8:00:00 --partition gpu --gres=gpu:v100:3 \
     slrm-transformers.sh \
     $model \
-    ${expt_dir}/data/prompts_${n_shot}shot.json \
+    ${expt_dir}/data/prompts_${n_shot}shot${cotornot}.json \
     0.5 \
     poro
 
@@ -155,22 +177,46 @@ sbatch --time=24:00:00 --dependency=afterany:31391838 -A dgx-spa --partition dgx
 --partition=gpu --gres=gpu:v100:3
 
 #### run GPT-4
-expt_dir="expts/prelim3000"
-# n_shot=1
-# model_name="gpt4-turbo"
-sample_range="0-100"
-for n_shot in 3 10
+expt_dir="expts/random2000"
+sample_range="400-1000"
+# remember to set max tokens to 800 if running CoT
+cotornot=""
+for n_shot in 10
 do
-    for model_name in gpt4 gpt4-turbo
+    for model_name in gpt4-turbo
     do
         python inference_gpt.py \
-            --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
+            --prompts ${expt_dir}/data/prompts_${n_shot}shot${cotornot}.json \
             --model $model_name \
             --sample-range $sample_range \
-            --out ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl
+            --out ${expt_dir}/data/prompts_${n_shot}shot${cotornot}_${model_name}_${sample_range}.jsonl
+    done
+done
+sample_range="100-1000"
+for n_shot in 10
+do
+    for model_name in gpt4-turbo
+    do
+        python inference_gpt.py \
+            --prompts ${expt_dir}/data/prompts_${n_shot}shot${cotornot}.json \
+            --model $model_name \
+            --sample-range $sample_range \
+            --out ${expt_dir}/data/prompts_${n_shot}shot${cotornot}_${model_name}_${sample_range}.jsonl
     done
 done
 
+
+########## combine files
+for n_shot in 1
+do
+    for model_name in gpt4-turbo
+    do
+        python combine_json.py \
+            --json_files  expts/random2000/data/prompts_${n_shot}shot_${model_name}_0-100.jsonl \
+                          expts/random2000/data/prompts_${n_shot}shot_${model_name}_100-1000.jsonl \
+            --output_file expts/random2000/data/prompts_${n_shot}shot_${model_name}_0-1000.jsonl
+    done
+done
 
 ###############################################################################
 
@@ -204,17 +250,16 @@ do
 done
 
 # evaluate gpt4
-expt_dir="expts/prelim3000"
-# model_name="gpt4-turbo"
-sample_range="0-100"
-for n_shot in 0 1 3 10
+expt_dir="expts/random2000"
+sample_range="0-1000"
+for n_shot in 0 1 5 10
 do
-    for model_name in gpt4 gpt4-turbo
+    for model_name in gpt4-turbo
     do
         python evaluate.py \
             --refs ${expt_dir}/data/refs.json \
             --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl \
-            --refs-range 0 100 \
+            --refs-range $sample_range \
             --out ${expt_dir}/results_${n_shot}shot_${model_name}_${sample_range}_newparsing.txt
     done
 done
@@ -286,12 +331,11 @@ python evaluate.py \
     --confusion
 
 
-expt_dir="expts/prelim3000"
-model_name="gpt4"
+expt_dir="expts/random2000"
 # n_shot=5
 temp=1.0
-sample_range="0-100"
-for n_shot in 0
+sample_range="0-1000"
+for n_shot in 0 1 5 10
 do
     for model_name in gpt4-turbo
     do
@@ -300,6 +344,6 @@ do
             --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_${sample_range}.jsonl \
             --out ${expt_dir}/confusion_matrix_${n_shot}shot_${model_name}_${sample_range}_temp${temp}.png \
             --confusion \
-            --refs-range 0 100
+            --refs-range $sample_range
     done
 done

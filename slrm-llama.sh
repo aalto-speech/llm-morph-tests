@@ -44,8 +44,8 @@ echo "Running inference for $prompts"
     --ckpt_dir $MODEL_ROOT \
     --tokenizer_path $TOKENIZER_PATH \
     --max_seq_len 512 --max_batch_size 16 \
-    --temperature 0.5 --max_gen_len 50 \
-    --output_file ${prompts%.json}_llama_${llama_version}.jsonl)
+    --temperature 0.5 --max_gen_len 512 \
+    --output_file ${prompts%.json}_llama2_${llama_version}.jsonl)
 
 
 # model_name = "meta-llama/Llama-2-70b-chat-hf"

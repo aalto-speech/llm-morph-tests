@@ -10,7 +10,6 @@ module load gcc/11.3.0
 module load intel-oneapi-compilers/2023.1.0
 module load cuda/11.8.0
 
-activate your conda environment
 module load miniconda
 source activate hf23
 
@@ -34,5 +33,5 @@ echo "Temperature: $temp"
     --prompts $prompts \
     --model_path $model_path \
     --max_seq_len 512 --max_batch_size 16 \
-    --temperature $temp --max_gen_len 50 \
+    --temperature $temp --max_gen_len 512 \
     --output_file ${prompts%.json}_${model_name}_temp${temp}.jsonl)

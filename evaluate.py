@@ -61,6 +61,9 @@ def read_files(pred_file, ref_file, prompt_file=None, refs_range=None):
 
 def parse_answer_line(answer):
     """Parse the answer into a tuple of (number, case, person)."""
+    if not answer:
+        return ('', '', '')
+
     if '\n' in answer:
         answer = answer.split('\n')[0]
 
@@ -95,6 +98,8 @@ def normalise_preds(pred):
 
     if pred_num not in NUM_LABELS:
         print(f"replacing pred_num {pred_num} with other")
+        print('full answer:', pred)
+        print()
         pred_num = "other"
     else:
         pred_num = NUM_LABELS[pred_num]
@@ -359,8 +364,11 @@ def main():
                         help="plot accuracy wrt frequency")
     parser.add_argument("--out", help="output file")
     parser.add_argument("--confusion", help="plot confusion matrices", action="store_true")
-    parser.add_argument("--refs-range", type=int, nargs=2, help="range of references to use")
+    parser.add_argument("--refs-range", type=str, help="range of references to use")
     args = parser.parse_args()
+
+    if args.refs_range:
+        args.refs_range = [int(i) for i in args.refs_range.split("-")]
 
     preds, refs, prompts = read_files(
         args.preds, args.refs, args.prompts, refs_range=args.refs_range)

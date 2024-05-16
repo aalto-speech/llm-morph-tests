@@ -1,9 +1,7 @@
 #!/bin/bash
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 #SBATCH --mem=4G
 #SBATCH --gres=gpu:1
-#SBATCH --partition dgx-spa
-#SBATCH -A dgx-spa
 #SBATCH --job-name=train_fairseq
 #SBATCH --output=log/%x_%j.out
 

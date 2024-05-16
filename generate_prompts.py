@@ -19,10 +19,13 @@ def fill_template_random_egs(eg_word_forms, eg_word_answers, test_word, test_wor
     return template
 
 
-def fill_noun_template(test_word, n_shot=5):
-
+def fill_noun_template(test_word, n_shot=5, cot=False):
+    """ generate prompts for nouns """
     template = 'Jäsennä taivutetut substantiivit tällä tavalla:'
     template += '\ntaivutusmuoto -- perusmuoto, luku, sijamuoto, omistusliite\n'
+
+    if cot:
+        template += 'Anna ensin perustelu jokaiselle kategorialle, sen jälkeen oikea vastaus.\n'
 
     if n_shot >= 1:
         template += '\nvedessämme -- vesi, yksikkö, inessiivi, 1. persoonan monikko'
@@ -147,6 +150,8 @@ if __name__ == "__main__":
     args.add_argument("--inflected", type=str, help="File of omorstring + inflected form pairs")
     args.add_argument("--samples", type=str, help="File of pre-selected samples to use")
     args.add_argument("--n_shot", type=int, help="Number of examples in the prompt")
+    args.add_argument("--cot", action="store_true",
+                      help="Chain of Thought: whether to include reasoning for each example in prompt")
     args.add_argument("--n_samples", type=int, help="Number of samples to generate")
     args.add_argument("--batch_size", type=int, default=16, help="Batch size for writing to file")
     args.add_argument("--word_class", type=str, help="Word class of the inflected words")
@@ -185,7 +190,7 @@ if __name__ == "__main__":
     refs = []
     omorstrings = []
     for sample in samples:
-        prompts.append(fill_noun_template(sample, args.n_shot))
+        prompts.append(fill_noun_template(sample, args.n_shot, args.cot))
 
         if args.inflected:
             refs.append('\n'.join([s[1] for s in word2refs[sample]]))
@@ -201,13 +206,13 @@ if __name__ == "__main__":
     #         fsample.write(json.dumps(batch_prompts))
     #         fref.write(json.dumps(batch_refs))
 
-    # check that file doesn't exist
-    if path.isfile(f"{args.output_dir}/prompts_{args.n_shot}shot.json"):
-        print(f"Error: file {args.output_dir}/prompts_{args.n_shot}shot.json already exists")
+    cotsuffix = "_cot" if args.cot else ""
+    output_file = f"{args.output_dir}/prompts_{args.n_shot}shot{cotsuffix}.json"
+    if path.isfile(output_file):
+        print(f"Error: file {output_file} already exists")
         exit(1)
-    with open(f"{args.output_dir}/prompts_{args.n_shot}shot.json", "w", encoding="utf-8") as fsample:
+    with open(output_file, "w", encoding="utf-8") as fsample:
         fsample.write(json.dumps(prompts))
-
 
 
     if args.inflected:

@@ -77,7 +77,11 @@ if args.inflected_words:
         inflected = f.readlines()
 
     for inflected_line in inflected:
-        wordform, omstr = inflected_line.strip().split(":")
+        try:
+            wordform, omstr = inflected_line.strip().split(":")
+        except ValueError:
+            print(f"Error: {inflected_line} does not contain exactly 1 colon")
+            continue
         wordforms.append(wordform)
         omrstrings.append(omstr)
 

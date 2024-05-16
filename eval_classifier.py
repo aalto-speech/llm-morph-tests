@@ -58,3 +58,7 @@ for pred, label in zip(all_preds, labels):
         correct += 1
 
 print(f"Accuracy: {correct / len(labels)}")
+
+print('####################################################')
+for pred, label in zip(all_preds, labels):
+    print(int(pred == label), pred, label)
