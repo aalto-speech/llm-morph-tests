@@ -1,0 +1,3 @@
+Number: 0.823
+Case: 0.3635
+Person: 0.6745

@@ -18,33 +18,26 @@ argparser.add_argument("--model", type=str, help="Model to use", default="gpt4-t
 argparser.add_argument("--sample-range", type=str, help="Range of samples to use",
         default="0-100")
 argparser.add_argument("--out", type=str, help="Output file name")
+argparser.add_argument("--temperature", type=float, help="Temperature to use", default=1.0)
 args = argparser.parse_args()
 
-sample_range = [int(r) for r in args.sample_range.split("-")]
 
-with open(args.prompts, "r", encoding='utf-8') as f:
-    prompts = json.load(f)
-
-converted_prompts = []
-for prompt in prompts[sample_range[0]:sample_range[1]]:
-    converted_prompts.append(
-            {
-                "role": "user",
-                "content": prompt,
-                }
-            )
 
 def update_base_url(request: httpx.Request) -> None:
-    if request.url.path == "/chat/completions":
-        if args.model == "gpt4":
-            path_suffix = "/v1/chat/gpt4-8k"
-        elif args.model == "gpt4-turbo":
-            path_suffix = "/v1/openai/gpt4-1106-preview/chat/completions"
-        elif args.model == "gpt3.5-turbo":
-            path_suffix = "/v1/chat/gpt-35-turbo-1106"
-        else:
-            raise ValueError(f"Unknown model {args.model}")
-        request.url = request.url.copy_with(path=path_suffix)
+    #if request.url.path == "/chat/completions":
+    if args.model == "gpt4":
+        path_suffix = "/v1/chat/gpt4-8k"
+    elif args.model == "gpt4-turbo":
+        path_suffix = "/v1/openai/gpt4-1106-preview/chat/completions"
+    elif args.model == "gpt4-turbo-new":
+        path_suffix = "/v1/openai/gpt4-turbo/chat/completions"
+    elif args.model == "gpt3.5-turbo":
+        path_suffix = "/v1/chat/gpt-35-turbo-1106"
+    elif args.model == "dall-e":
+        path_suffix = "/v1/openai/dall-e-3/images/generations"
+    else:
+        raise ValueError(f"Unknown model {args.model}")
+    request.url = request.url.copy_with(path=path_suffix)
 
 client = OpenAI(
         base_url="https://aalto-openai-apigw.azure-api.net",
@@ -59,31 +52,61 @@ client = OpenAI(
             ),
         )
 
-outputs = []
-completions = []
-# one msg at a time since we don't want the model to remember previous messages
-buff = []
-for i, msg in enumerate(tqdm(converted_prompts)):
-    completion = client.chat.completions.create(
-        model="no_effect", # the model variable must be set, but has no effect, URL defines model
-        messages=[msg],
-        max_tokens=50,
-        temperature=1.0,
-        top_p=1.0,
+if args.model == "dall-e":
+    for prompt in args.prompts.split(" ## "):
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
         )
-    outputs.append(completion.choices[0].message.content)
-    completions.append(completion)
+        print(response)
+        image_url = response.data[0].url
+        print(image_url)
 
-    # print(completion)
+else:
+    sample_range = [int(r) for r in args.sample_range.split("-")]
 
-    buff.append(completion)
-    if i % 100 == 0 and i > 0:
-        with open(args.out + f".completions.buff.{i}.json", "w", encoding='utf-8') as f:
-            json.dump([c.dict() for c in completions], f)
-        buff = []
+    with open(args.prompts, "r", encoding='utf-8') as f:
+        prompts = json.load(f)
 
-with open(args.out, "w", encoding='utf-8') as f:
-    json.dump(outputs, f)
+    converted_prompts = []
+    for prompt in prompts[sample_range[0]:sample_range[1]]:
+        converted_prompts.append(
+                {
+                    "role": "user",
+                    "content": prompt,
+                    }
+                )
 
-with open(args.out + ".completions.json", "w", encoding='utf-8') as f:
-    json.dump([c.dict() for c in completions], f)
+    print(args)
+
+    outputs = []
+    completions = []
+    # one msg at a time since we don't want the model to remember previous messages
+    buff = []
+    for i, msg in enumerate(tqdm(converted_prompts)):
+        completion = client.chat.completions.create(
+            model="no_effect", # model variable must be set, but has no effect, URL defines model
+            messages=[msg],
+            max_tokens=50,
+            temperature=args.temperature,
+            top_p=1.0,
+            )
+        outputs.append(completion.choices[0].message.content)
+        completions.append(completion)
+
+        # print(completion)
+
+        buff.append(completion)
+        if i % 100 == 0 and i > 0:
+            with open(args.out + f".completions.buff.{i}.json", "w", encoding='utf-8') as f:
+                json.dump([c.dict() for c in completions], f)
+            buff = []
+
+    with open(args.out, "w", encoding='utf-8') as f:
+        json.dump(outputs, f)
+
+    with open(args.out + ".completions.json", "w", encoding='utf-8') as f:
+        json.dump([c.dict() for c in completions], f)

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=2:00:00
+#SBATCH --time=1:00:00
 #SBATCH --mem=4G
 #SBATCH --gres=gpu:1
 #SBATCH --job-name=train_fairseq
