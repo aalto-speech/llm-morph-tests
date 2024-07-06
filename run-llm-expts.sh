@@ -117,8 +117,10 @@ sbatch  --time=6:00:00 -A dgx-spa --partition dgx-spa --gres=gpu:v100:1 \
     $llama_v \
     ${expt_dir}/data/prompts_${n_shot}shot.json
 
-
-sbatch  --time=6:00:00 -A dgx-spa --partition dgx-spa --gres=gpu:v100:1 \
+expt_dir="expts/random2000"
+llama_v="70b"
+n_shot=10
+sbatch  --time=24:00:00 -A dgx-spa --partition dgx-spa --gres=gpu:v100:8 \
     slrm-llama.sh \
     $llama_v \
     ${expt_dir}/data/prompts_${n_shot}shot.json
@@ -167,7 +169,8 @@ n_shot=10
 cotornot=""
 temp=0.0
 model='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
-sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa  --gres=gpu:v100:3 \
+sbatch --time=12:00:00 --partition=gpu \
+    --gres=gpu:v100:3 \
     slrm-transformers.sh \
     $model \
     ${expt_dir}/data/prompts_${n_shot}shot${cotornot}.json \
@@ -181,9 +184,9 @@ sbatch --time=12:00:00 -A dgx-spa --partition dgx-spa  --gres=gpu:v100:3 \
 expt_dir="expts/random2000"
 # remember to set max tokens to 800 if running CoT
 cotornot=""
-sample_range="0-2000"
+sample_range="700-2000"
 temp=0.0
-for n_shot in 5
+for n_shot in 0
 do
     for model_name in gpt4-turbo
     do
@@ -219,25 +222,28 @@ expt_dir="expts/random2000"
 eval_type="accuracy"
 # for model_name in llama2_7b llama2_13b llama2_70b llama2_13b-chat llama2_70b-chat
 
-for model_name in llama2_70b
+for model_name in llama2_7b
 do
-    for n_shot in 0 1 5 10
+    for n_shot in 10
     do
         python evaluate.py \
             --refs ${expt_dir}/data/refs.json \
-            --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}.jsonl \
-            --out ${expt_dir}/results_${n_shot}shot_${model_name}_${eval_type}.txt \
+            --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp0.0.jsonl \
+            --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp0.0_${eval_type}.txt \
             --eval-type $eval_type
     done
 done
 
 # evaluate poro
 expt_dir="expts/random2000"
+# expt_dir="expts/prelim3000_incorrect_peukalo"
 model_name="poro"
 temp=0.5
 # eval_type="f1-scores"
 eval_type="accuracy"
-for n_shot in 10
+# eval_type="print_errors"
+# n_shot=5
+for n_shot in 0 1 5 10
 do
     python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
@@ -248,16 +254,16 @@ do
         --eval-type $eval_type
 done
 
-# evaluate gpt4
+# evaluate gpt models
 expt_dir="expts/random2000"
-sample_range="0-2000"
+sample_range="0-700"
 cotornot=""
 # eval_type="f1-scores"
 eval_type="accuracy"
 temp=0.0
-for n_shot in 10
+for n_shot in 0
 do
-    for model_name in gpt3.5-turbo
+    for model_name in gpt4-turbo
     do
         echo ""
         echo "###################################################"
@@ -388,32 +394,43 @@ done
 #  two case confusions
 expt_dir="expts/random2000"
 # n_shot=5
-temp=1.0
+temp=0.0
 sample_range="0-2000"
 cotornot=""
+category="case"
 for model_name in gpt4-turbo
 do
     python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
-        --preds ${expt_dir}/data/prompts_0shot${cotornot}_${model_name}_${sample_range}.jsonl ${expt_dir}/data/prompts_10shot${cotornot}_${model_name}_${sample_range}.jsonl \
-        --out ${expt_dir}/2confusion_matrix_shot${cotornot}_${model_name}_${sample_range}_temp${temp}.png \
-        --two-case-confusion \
+        --preds ${expt_dir}/data/prompts_0shot${cotornot}_${model_name}_${sample_range}.jsonl ${expt_dir}/data/prompts_10shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
+        --out ${expt_dir}/2confusion_matrix_${category}${cotornot}_${model_name}_${sample_range}.png \
+        --eval-type two-${category}-confusion \
         --refs-range $sample_range
 done
 
 #  many confusions
 expt_dir="expts/random2000"
 # n_shot=5
-temp=1.0
+temp=0.0
 sample_range="0-2000"
 cotornot=""
 for model_name in gpt4-turbo
 do
     python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
-        --preds ${expt_dir}/data/prompts_{0,1,5,10}shot${cotornot}_${model_name}_${sample_range}.jsonl\
+        --preds ${expt_dir}/data/prompts_0shot${cotornot}_${model_name}_${sample_range}.jsonl \
+            ${expt_dir}/data/prompts_{1,5,10}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
         --out ${expt_dir}/all_confusions${cotornot}_${model_name}_${sample_range}_temp${temp}.png \
-        --many-confusions \
+        --eval-type many-confusions \
+        --refs-range $sample_range
+done
+for model_name in gpt3.5-turbo
+do
+    python evaluate.py \
+        --refs ${expt_dir}/data/refs.json \
+        --preds ${expt_dir}/data/prompts_{0,1,5,10}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
+        --out ${expt_dir}/all_confusions${cotornot}_${model_name}_${sample_range}_temp${temp}.png \
+        --eval-type many-confusions \
         --refs-range $sample_range
 done
 
@@ -471,7 +488,8 @@ done
 ### other plots
 resulttype=Complete
 python visualise_results.py \
-    --result-files expts/random2000/results_*shot_*_0-2000*.txt expts/random2000/results_*shot_{llama2_70b.,poro}* \
+    --result-files expts/random2000/results_*shot_*_0-2000*.txt \
+        expts/random2000/results_*shot_{llama2_70b.,poro}* \
     --resulttype $resulttype \
     --output results_plot_${resulttype}_withrnn_full9.png
 
@@ -482,11 +500,30 @@ python visualise_results.py \
     --output results_plot_llama_${resulttype}.png
 
 
+plottype=multiplot
+python visualise_results.py \
+    --result-files expts/random2000/results_*shot_gpt*-turbo_0-2000_f1-scores.txt \
+        expts/random2000/results_*shot_{llama2_70b,poro}*f1-scores.txt \
+    --plottype $plottype \
+    --output results_multiplot.png
+   
+plottype=multiplot
+python visualise_results.py \
+    --result-files expts/random2000/results_*shot_gpt*-turbo_temp0.0_0-2000_accuracy.txt \
+        expts/random2000/results_0shot_gpt4-turbo_temp0.0_0-700_accuracy.txt \
+        expts/random2000/results_*shot_{llama2_70b,poro_temp0.5}_accuracy.txt \
+    --plottype $plottype \
+    --output results_multiplot_accuracies_gpt4-turbo0shot700.png
+     
+    
+
+
 
 for resulttype in Case Person Number
 do
     python visualise_results.py \
-        --result-files expts/random2000/results_*shot_*_0-2000*_f1-scores.txt expts/random2000/results_*shot_{llama2_70b,poro}*_f1-scores* \
+        --result-files expts/random2000/results_*shot_*_0-2000*_f1-scores.txt \
+            expts/random2000/results_*shot_{llama2_70b,poro}*_f1-scores* \
         --resulttype $resulttype \
         --output results_plot_${resulttype}_full_f1-scores.png
 done

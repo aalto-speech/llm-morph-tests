@@ -6,12 +6,17 @@
 #SBATCH --job-name=llm_inference
 #SBATCH --output=log/%x_%j.out
 
-module load gcc/11.3.0
-module load intel-oneapi-compilers/2023.1.0
-module load cuda/11.8.0
+# module load gcc/11.3.0
+# module load intel-oneapi-compilers/2023.1.0
+# module load cuda/11.8.0
+# module load miniconda
 
-module load miniconda
-source activate hf23
+# module load gcc/11.4.0
+# module load scibuilder-spack-dev/2024-01
+# module load cuda/12.2.1
+# module load scicomp-python-env
+
+# source activate hf23
 
 model_path=$1
 prompts=$2

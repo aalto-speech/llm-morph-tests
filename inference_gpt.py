@@ -97,8 +97,6 @@ else:
         outputs.append(completion.choices[0].message.content)
         completions.append(completion)
 
-        # print(completion)
-
         buff.append(completion)
         if i % 100 == 0 and i > 0:
             with open(args.out + f".completions.buff.{i}.json", "w", encoding='utf-8') as f:

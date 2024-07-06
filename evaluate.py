@@ -1,40 +1,9 @@
 import argparse
-import ast
 import json
 from freq_stats_from_conllu import read_freq_stats
 from common import NUM_LABELS, CASE_LABELS, PERSON_LABELS
 from sklearn import metrics
 
-
-
-# def read_preds_and_refs(pred_files, ref_files, prompt_files=None):
-#     """Read the predictions and references from the files."""
-    
-#     print(f"pred_files: {pred_files}")
-#     print(f"ref_files: {ref_files}")
-#     print(f"prompt_files: {prompt_files}")
-    
-#     preds = []
-#     for file in pred_files:
-#         with open(file, "r", encoding="utf-8") as f:
-#             preds += ast.literal_eval(f.readlines()[-1])
-
-#     prompts = []
-#     if prompt_files:
-#         for file in prompt_files:
-#             with open(file, "r", encoding="utf-8") as f:
-#                 prompts += ast.literal_eval(f.read())
-
-#     refs = []
-#     for file in ref_files:
-#         with open(file, "r", encoding="utf-8") as f:
-#             refs += ast.literal_eval(f.read())
-
-#     assert len(preds) == len(refs), "Number of predictions and references should be the same"
-#     if prompt_files:
-#         assert len(preds) == len(prompts), "Number of predictions and prompts should be the same"
-
-#     return preds, refs, prompts
 
 def read_files(pred_file, ref_file, prompt_file=None, refs_range=None):
     """Read the predictions and references from the files."""
@@ -59,6 +28,7 @@ def read_files(pred_file, ref_file, prompt_file=None, refs_range=None):
         assert len(preds) == len(prompts), "Number of preds and prompts should be the same"
 
     return preds, refs, prompts
+
 
 def parse_pred_file_name(file_name):
     """Parse the prediction file name to get the model name and prompt type.
@@ -143,11 +113,12 @@ def normalise_preds(pred, sample, last_line=False, verbose=False):
         else:
             if verbose:
                 print(f"replacing pred_person {pred_person} with other")
-                pred_person = "other"
+            pred_person = "other"
     else:
         pred_person = PERSON_LABELS[pred_person]
 
     return (pred_num, pred_case, pred_person)
+
 
 def normalise_refs(ref):
     """Normalise the labels in the reference."""
@@ -180,7 +151,8 @@ def check_exact_match(pred, ref, verbose=False):
 
     best_match = 0
     results = (False, False, False)
-    aligned = (None, None, None, None, None, None)
+    # aligned = (None, None, None, None, None, None)
+    aligned = None
     for ref_line in ref:
         (ref_num, ref_case, ref_person) = ref_line
         match = (pred_num == ref_num, pred_case == ref_case, pred_person == ref_person)
@@ -188,7 +160,15 @@ def check_exact_match(pred, ref, verbose=False):
         if match.count(True) >= best_match:
             best_match = match.count(True)
             results = match
-            aligned = (pred_num, ref_num, pred_case, ref_case, pred_person, ref_person)
+            # aligned = (pred_num, ref_num, pred_case, ref_case, pred_person, ref_person)
+            aligned = {
+                'pred_num': pred_num,
+                'ref_num': ref_num,
+                'pred_case': pred_case,
+                'ref_case': ref_case,
+                'pred_person': pred_person,
+                'ref_person': ref_person
+            }
 
     if verbose:
         print(f"Pred_num: {pred_num}, ref_num: {ref_num}")
@@ -218,7 +198,7 @@ def get_exact_matches(preds, refs):
         'complete': []
         }
 
-    for i, (pred, ref) in enumerate(zip(preds, refs)):
+    for pred, ref in zip(preds, refs):
         (num_match, case_match, person_match), _ = check_exact_match(pred, ref)
         results['num'].append(num_match)
         results['case'].append(case_match)
@@ -248,14 +228,15 @@ def get_avg_accuracies(preds, refs, verbose=False):
             print(ref)
             print(f"num_match: {num_match}, case_match: {case_match}, person_match: {person_match}")
             print()
-        
-        if not person_match:
-            print('sample number:', i)
-            print(f"pred: {pred}")
-            print(f"ref: {ref}")
-            print()
+
+            if not person_match:
+                print('sample number:', i)
+                print(f"pred: {pred}")
+                print(f"ref: {ref}")
+                print()
 
     return results
+
 
 def get_f1_scores(preds, refs):
     """Get the F1 scores for the three categories."""
@@ -275,11 +256,9 @@ def get_f1_scores(preds, refs):
     return num_f1, case_f1, person_f1
 
 
-
 def parse_lemma_form_from_prompt(prompt):
     form_lemma = prompt.split('\n')[-1]
     return form_lemma.split('--')[1].strip(), form_lemma.split('--')[0].strip()
-
 
 
 def plot_accuracy_wrt_freq(matches, keys, freqs, title):
@@ -361,11 +340,14 @@ def many_confusion_mats(preds, refs, output_file, shots, model_name):
         aligned = get_aligned(pred, refs)
 
         num_conf = metrics.confusion_matrix(
-            [a[1] for a in aligned], [a[0] for a in aligned], labels=num_labels)
+            [a['ref_num'] for a in aligned], [a['pred_num'] for a in aligned],
+            labels=num_labels)
         case_conf = metrics.confusion_matrix(
-            [a[3] for a in aligned], [a[2] for a in aligned], labels=case_labels)
+            [a['ref_case'] for a in aligned], [a['pred_case'] for a in aligned],
+            labels=case_labels)
         person_conf = metrics.confusion_matrix(
-            [a[5] for a in aligned], [a[4] for a in aligned], labels=person_labels)
+            [a['ref_person'] for a in aligned], [a['pred_person'] for a in aligned],
+            labels=person_labels)
 
         # the last row and column are for "other" category
         # the reference should never be "other"
@@ -418,9 +400,7 @@ def many_confusion_mats(preds, refs, output_file, shots, model_name):
     fig_person.savefig(output_file + "_person.png")
 
 
-
 def two_case_confusion_mats(preds1, refs1, preds2, refs2, output_file):
-    """Plot confusion matrices for the three categories."""
 
     aligned = get_aligned(preds1, refs1)
     aligned2 = get_aligned(preds2, refs2)
@@ -431,9 +411,9 @@ def two_case_confusion_mats(preds1, refs1, preds2, refs2, output_file):
     case_labels.append("other")
 
     case_conf1 = metrics.confusion_matrix(
-        [a[3] for a in aligned], [a[2] for a in aligned], labels=case_labels)
+        [a["ref_case"] for a in aligned], [a["pred_case"] for a in aligned], labels=case_labels)
     case_conf2 = metrics.confusion_matrix(
-        [a[3] for a in aligned2], [a[2] for a in aligned2], labels=case_labels)
+        [a["ref_case"] for a in aligned2], [a["pred_case"] for a in aligned2], labels=case_labels)
     
 
     # the last row and column are for "other" category
@@ -459,20 +439,21 @@ def two_case_confusion_mats(preds1, refs1, preds2, refs2, output_file):
                       'cbar': False}
         # annot=True, cmap='Blues', fmt='g'
 
-    _, ax = plt.subplots(2, 1, figsize=(11, 13))
+    _, ax = plt.subplots(2, 1, figsize=(10.5, 12))
 
     print(ref_case_labels, case_labels)
     # exit()
 
     sns.heatmap(case_conf1, ax=ax[0], **heatmap_kwargs)
-    ax[0].set_title("Case classification, GPT-4-turbo, 0-shot")
+    ax[0].set_title("0-shot")
     ax[0].set_yticklabels(ref_case_labels, rotation=0)
-    ax[0].set_xticklabels(case_labels, rotation=90)
+    # ax[0].set_xticklabels(case_labels, rotation=90)
     ax[0].set_ylabel("True label")
-    ax[0].set_xlabel("Predicted label")
+    # ax[0].set_xlabel("Predicted label")
+    ax[0].set_xticks([])
 
     sns.heatmap(case_conf2, ax=ax[1], **heatmap_kwargs)
-    ax[1].set_title("Case classification, GPT-4-turbo, 10-shot")
+    ax[1].set_title("10-shot")
     ax[1].set_yticklabels(ref_case_labels, rotation=0)
     ax[1].set_xticklabels(case_labels, rotation=90)
     ax[1].set_ylabel("True label")
@@ -482,6 +463,74 @@ def two_case_confusion_mats(preds1, refs1, preds2, refs2, output_file):
     plt.tight_layout()
 
     plt.savefig(output_file)
+
+
+
+def two_person_confusion_mats(preds1, refs1, preds2, refs2, output_file):
+
+    aligned = get_aligned(preds1, refs1)
+    aligned2 = get_aligned(preds2, refs2)
+    
+    # print(aligned)
+
+    labels = ['SG1', 'SG2', 'PL1', 'PL2', '3', 'other']
+    conf1 = metrics.confusion_matrix(
+        [a['ref_person'] for a in aligned], [a['pred_person'] for a in aligned], labels=labels)
+    conf2 = metrics.confusion_matrix(
+        [a['ref_person'] for a in aligned2], [a['pred_person'] for a in aligned2], labels=labels)
+    
+    # print(conf1)
+    # print(conf2)
+
+    # the last row and column are for "other" category
+    # the reference should never be "other"
+    assert conf1[-1, :].sum() == 0
+    assert conf2[-1, :].sum() == 0
+    # remove the last row
+    conf1 = conf1[:-1, :]
+    conf2 = conf2[:-1, :]
+    # fix the tics
+    ref_labels = [label for label in labels if label != "other"]
+
+
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    # set style for the plots
+    sns.set_theme('poster')
+    sns.set_style('whitegrid')
+    # sns.color_palette("rocket")
+
+    heatmap_kwargs = {'annot': True, 'fmt': 'g', 'cmap': 'Blues',
+                      'cbar': False}
+        # annot=True, cmap='Blues', fmt='g'
+
+    _, ax = plt.subplots(1, 2, figsize=(10, 4.5))
+
+    # print(ref_labels, labels)
+    # exit()
+
+    sns.heatmap(conf1, ax=ax[0], **heatmap_kwargs)
+    ax[0].set_title("0-shot")
+    ax[0].set_yticklabels(ref_labels, rotation=0)
+    ax[0].set_xticklabels(labels, rotation=90)
+    ax[0].set_ylabel("True label")
+    ax[0].set_xlabel("Predicted label")
+    # ax[0].set_xticks([])
+
+    sns.heatmap(conf2, ax=ax[1], **heatmap_kwargs)
+    ax[1].set_title("10-shot")
+    ax[1].set_yticklabels(ref_labels, rotation=0)
+    ax[1].set_xticklabels(labels, rotation=90)
+    # ax[1].set_ylabel("True label")
+    ax[1].set_xlabel("Predicted label")
+    ax[1].set_yticks([])
+
+
+    plt.tight_layout()
+
+    plt.savefig(output_file)
+
 
 
 def confusion_mats(preds, refs, output_file):
@@ -532,9 +581,9 @@ def confusion_mats(preds, refs, output_file):
     heatmap_kwargs = {'annot': True, 'fmt': 'g', 'cmap': 'Blues',
                       'cbar': False}
         # annot=True, cmap='Blues', fmt='g'
-    
+
     # _, ax = plt.subplots(2, 1, figsize=(9, 18))
-    
+
     # print(case_conf)
     # print(ref_case_labels, case_labels)
     # # exit()
@@ -603,6 +652,7 @@ def confusion_mats(preds, refs, output_file):
 
 
 
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -619,22 +669,47 @@ def main():
     parser.add_argument("--eval-type",
                         help="evaluation type",
                         choices=["accuracy", "acc-wrt-freq", "confusion",
-                                 "many-confusions", "f1-scores"], default="accuracy")
+                                 "many-confusions", "two-case-confusion", "two-person-confusion",
+                                 "f1-scores", "print_errors"],
+                                 default="accuracy")
     parser.add_argument("--out", help="output file")
     parser.add_argument("--refs-range", type=str, help="range of references to use")
-    parser.add_argument("--cot", type=str, help="check only the last line of the prediction", nargs='?', const='')
+    parser.add_argument("--cot", type=str, help="check only the last line of the prediction",
+                        nargs='?', const='')
     parser.add_argument("--samples", type=str, help="samples to check")
     args = parser.parse_args()
 
+    if args.eval_type == "two-case-confusion":
+        preds_file1, preds_file2 = args.preds
+        preds1, refs1, _ = read_files(preds_file1, args.refs, args.prompts)
+        preds2, refs2, _ = read_files(preds_file2, args.refs, args.prompts)
+        normalised_preds1 = [normalise_preds(pred, sample=None, last_line=False) for pred in preds1]
+        normalised_refs1 = [normalise_refs(ref) for ref in refs1]
+        normalised_preds2 = [normalise_preds(pred, sample=None, last_line=False) for pred in preds2]
+        normalised_refs2 = [normalise_refs(ref) for ref in refs2]
+        two_case_confusion_mats(
+            normalised_preds1,
+            normalised_refs1,
+            normalised_preds2, normalised_refs2,
+            args.out)
+        return
+
+    if args.eval_type == "two-person-confusion":
+        preds_file1, preds_file2 = args.preds
+        preds1, refs1, _ = read_files(preds_file1, args.refs, args.prompts)
+        preds2, refs2, _ = read_files(preds_file2, args.refs, args.prompts)
+        normalised_preds1 = [normalise_preds(pred, sample=None, last_line=False) for pred in preds1]
+        normalised_refs1 = [normalise_refs(ref) for ref in refs1]
+        normalised_preds2 = [normalise_preds(pred, sample=None, last_line=False) for pred in preds2]
+        normalised_refs2 = [normalise_refs(ref) for ref in refs2]
+        two_person_confusion_mats(
+            normalised_preds1,
+            normalised_refs1,
+            normalised_preds2, normalised_refs2,
+            args.out)
+        return
+
     if args.eval_type == "many-confusions":
-        # preds_file1, preds_file2 = args.preds
-        # preds1, refs1, _ = read_files(preds_file1, args.refs, args.prompts)
-        # preds2, refs2, _ = read_files(preds_file2, args.refs, args.prompts)
-        # normalised_preds1 = [normalise_preds(pred, sample=None, last_line=False) for pred in preds1]
-        # normalised_refs1 = [normalise_refs(ref) for ref in refs1]
-        # normalised_preds2 = [normalise_preds(pred, sample=None, last_line=False) for pred in preds2]
-        # normalised_refs2 = [normalise_refs(ref) for ref in refs2]
-        # two_case_confusion_mats(normalised_preds1, normalised_refs1, normalised_preds2, normalised_refs2, args.out)
 
         norm_preds = []
         shots = []
@@ -680,15 +755,15 @@ def main():
         normalised_preds = [normalise_preds(pred, sample=None, last_line=cot) for pred in preds]
     normalised_refs = [normalise_refs(ref) for ref in refs]
 
-    # print the samples that are not exact matches for the person
-    # for sample, ref, pred, pred_raw in zip(samples, normalised_refs, normalised_preds, preds):
-    #     if not check_exact_match(pred, ref)[0][2]:
-    #         print(f"sample: {sample}")
-    #         print(f"ref: {ref}")
-    #         print(f"pred: {pred}")
-    #         print(f"pred_raw: {pred_raw}")
-    #         print()
-
+    if args.eval_type == "print_errors":
+        # print the samples that are not exact matches for the person
+        for sample, ref, pred, pred_raw in zip(samples, normalised_refs, normalised_preds, preds):
+            if not check_exact_match(pred, ref)[0][2]:
+                print(f"sample: {sample}")
+                print(f"ref: {ref}")
+                print(f"pred: {pred}")
+                print(f"pred_raw >>> {pred_raw} <<<")
+                print()
 
 
     if args.eval_type == "confusion": # plot confusion matrices
@@ -707,11 +782,12 @@ def main():
         + f"Person: {results['person'] / len(refs)}\n" \
         + f"Complete: {results['complete'] / len(refs)}\n"
 
-    if args.out:
-        with open(args.out, "w", encoding="utf-8") as f:
-            f.write(result_string)
-    else:
-        print(result_string)
+    if args.eval_type in ["accuracy", "f1-scores"]:
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as f:
+                f.write(result_string)
+        else:
+            print(result_string)
 
     if args.eval_type == "acc-wrt-freq":
 

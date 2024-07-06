@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --time=00:25:00
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=30GB
+#SBATCH --mem=80GB
 #SBATCH --gres=gpu:1
 #SBATCH --job-name=llama_inference
 #SBATCH --output=log/%x_%j.out
 
-module load gcc/11.3.0
-module load intel-oneapi-compilers/2023.1.0
-module load cuda/11.8.0
+# module load gcc/11.3.0
+# module load intel-oneapi-compilers/2023.1.0
+# module load cuda/11.8.0
 
 llama_version=$1
 prompts=$2
@@ -34,8 +34,8 @@ else
     exit 1
 fi
 
-module load miniconda
-source activate llamamodule
+# module load miniconda
+# source activate llamamodule
 
 echo "Running inference for $prompts"
 (set -x; torchrun --nproc_per_node $nprocs \
@@ -44,8 +44,8 @@ echo "Running inference for $prompts"
     --ckpt_dir $MODEL_ROOT \
     --tokenizer_path $TOKENIZER_PATH \
     --max_seq_len 512 --max_batch_size 16 \
-    --temperature 0.5 --max_gen_len 512 \
-    --output_file ${prompts%.json}_llama2_${llama_version}.jsonl)
+    --temperature 0.0 --max_gen_len 512 \
+    --output_file ${prompts%.json}_llama2_${llama_version}_temp0.0.jsonl)
 
 
 # model_name = "meta-llama/Llama-2-70b-chat-hf"
