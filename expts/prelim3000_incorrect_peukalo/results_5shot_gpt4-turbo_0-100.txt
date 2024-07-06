@@ -1,4 +1,0 @@
-Number: 0.66
-Case: 0.51
-Person: 0.55
-Complete: 0.35
