@@ -1,7 +1,0 @@
-/scratch/shareddata/dldata/llama-2/llama-2-13b
-/scratch/shareddata/dldata/llama-2/tokenizer.model
-GPU available: True
-> initializing model parallel with size 2
-> initializing ddp with size 1
-> initializing pipeline with size 1
-GPU available: True

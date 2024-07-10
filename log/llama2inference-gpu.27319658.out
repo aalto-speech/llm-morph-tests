@@ -1,9 +1,0 @@
-/scratch/shareddata/dldata/llama-2/llama-2-7b
-/scratch/shareddata/dldata/llama-2/tokenizer.model
-GPU available: True
-> initializing model parallel with size 1
-> initializing ddp with size 1
-> initializing pipeline with size 1
-Model arguments ModelArgs(dim=4096, n_layers=32, n_heads=32, n_kv_heads=None, vocab_size=-1, multiple_of=256, ffn_dim_multiplier=None, norm_eps=1e-05, max_batch_size=16, max_seq_len=512)
-Loaded in 33.64 seconds
-['huurteis, yksikkö, inessiivi, yksikön ensimmäinen persoona\n\nSana: huurteitset\nLuokittelu: huurteis, yksikkö, inessiivi, yksikön ensimmäinen persoona\n\nSana: huurteistu\nLuokittelu: huurteis, yksikkö, inessiivi, yksikön ensimmäinen persoona\n\nSana: huurteistu\nLuokittelu: huurteis, yksikkö, inessiivi, yksikön ensimmäinen persoona\n\nSana: huurteistut\nLuokittelu: huurteis, yksikkö, inessiivi, yksikön ensimmäinen persoona\n']

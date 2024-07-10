@@ -1,99 +1,0 @@
-Loading model /scratch/elec/morphogen/Poro-34B...
-Loading checkpoint shards:   0%|          | 0/14 [00:00<?, ?it/s]Loading checkpoint shards:   7%|▋         | 1/14 [00:09<02:02,  9.39s/it]Loading checkpoint shards:  14%|█▍        | 2/14 [00:24<02:29, 12.49s/it]Loading checkpoint shards:  21%|██▏       | 3/14 [00:37<02:23, 13.04s/it]Loading checkpoint shards:  29%|██▊       | 4/14 [00:50<02:10, 13.06s/it]Loading checkpoint shards:  36%|███▌      | 5/14 [01:05<02:02, 13.62s/it]Loading checkpoint shards:  43%|████▎     | 6/14 [01:19<01:50, 13.76s/it]Loading checkpoint shards:  50%|█████     | 7/14 [01:30<01:30, 12.92s/it]Loading checkpoint shards:  57%|█████▋    | 8/14 [01:43<01:17, 12.93s/it]Loading checkpoint shards:  64%|██████▍   | 9/14 [01:55<01:03, 12.65s/it]Loading checkpoint shards:  71%|███████▏  | 10/14 [02:07<00:49, 12.42s/it]Loading checkpoint shards:  79%|███████▊  | 11/14 [02:20<00:37, 12.46s/it]Loading checkpoint shards:  86%|████████▌ | 12/14 [02:30<00:23, 11.89s/it]Loading checkpoint shards:  93%|█████████▎| 13/14 [02:43<00:12, 12.10s/it]Loading checkpoint shards: 100%|██████████| 14/14 [02:56<00:00, 12.58s/it]Loading checkpoint shards: 100%|██████████| 14/14 [02:57<00:00, 12.65s/it]
-The prompt is:
-Luokittele nämä suomenkieliset sanat:
-
-vedessään
-huurteitasi
-kaistaksenne
-kaistoinamme
-kinoksieni
-kinokseenne
-
-
-seuraaviin morfologisiin luokkiin:
-
-A. yksikkö vai monikko
-
-B. sijamuoto; suomen sijamuodot ovat:
-- nominatiivi
-- genitiivi
-- akkusatiivi
-- partitiivi
-- inessiivi
-- elatiivi
-- illatiivi
-- abessiivi
-- ablatiivi
-- adessiivi
-- allatiivi
-- essiivi
-- translatiivi
-- instruktiivi
-- komitatiivi
-
-C. persoonamuoto:
-- yksikön ensimmäinen persoona
-- monikon ensimmäinen persoona
-- yksikön toinen persoona
-- monikon toinen persoona
-- yksikön kolmas persoona
-- monikon kolmas persoona
-
-
-Sana: vedessään
-Luokittelu: vesi, yksikkö, inessiivi, yksikön ensimmäinen persoona
-
-Sana: huurteitasi
-Luokittelu: 
-The generated text is:
-Luokittele nämä suomenkieliset sanat:
-
-vedessään
-huurteitasi
-kaistaksenne
-kaistoinamme
-kinoksieni
-kinokseenne
-
-
-seuraaviin morfologisiin luokkiin:
-
-A. yksikkö vai monikko
-
-B. sijamuoto; suomen sijamuodot ovat:
-- nominatiivi
-- genitiivi
-- akkusatiivi
-- partitiivi
-- inessiivi
-- elatiivi
-- illatiivi
-- abessiivi
-- ablatiivi
-- adessiivi
-- allatiivi
-- essiivi
-- translatiivi
-- instruktiivi
-- komitatiivi
-
-C. persoonamuoto:
-- yksikön ensimmäinen persoona
-- monikon ensimmäinen persoona
-- yksikön toinen persoona
-- monikon toinen persoona
-- yksikön kolmas persoona
-- monikon kolmas persoona
-
-
-Sana: vedessään
-Luokittelu: vesi, yksikkö, inessiivi, yksikön ensimmäinen persoona
-
-Sana: huurteitasi
-Luokittelu:  huurre, monikkokantainen, genetiivi, singularis, nominativus, akkusivus
-
-jne.
-
-Esim. WordNet-luokka:
-http://www.wordnet.princeton.edu/cgi-bin/dictionary?pr

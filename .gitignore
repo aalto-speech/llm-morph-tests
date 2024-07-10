@@ -20,7 +20,6 @@ lemma2feats*
 data/fairseq
 
 # other
-log
 __pycache__
 checkpoints
 evaluation
