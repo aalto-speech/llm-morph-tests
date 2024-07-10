@@ -8,23 +8,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from tqdm import tqdm
 
 
-# MODEL_NAME = '/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
-# MODEL_NAME = 'TurkuNLP/gpt3-finnish-small'
-
-# def main(
-#         prompts: Union[str, List[str],],
-#         ckpt_dir: str,
-#         tokenizer_path: str,
-#         temperature: float = 0.6,
-#         top_p: float = 0.9,
-#         max_seq_len: int = 512,
-#         max_batch_size: int = 8,
-#         model_parallel_size: Optional[int] = None,
-#         seed: int = 1,
-#         max_gen_len: Optional[int] = None,
-#         output_file: Optional[str] = None,
-#     ):
-
 if __name__ == "__main__":
     # fire.Fire(main)
     import argparse

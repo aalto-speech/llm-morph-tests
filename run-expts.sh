@@ -9,6 +9,8 @@
 ###############################################################################
 #### Get the inflected forms from the FST
 
+git clone git@github.com:flammie/omorfi.git
+
 cd omorfi
 # get noun lexemes from omorfi
 # filter punctuation, proper names, acronyms etc.
@@ -39,6 +41,9 @@ grep POSS= data/omorfi_noun_lexemes_filtered_inflected_all.txt \
     | grep CASE= | grep NUM= \
     >> data/omorfi_noun_lexemes_filtered_inflected_all_filtered.txt
 
+# combine ambiguous forms so that any of the possible morphological analyses is accepted
+python combine_words_with_same_surface_form.py
+
     
 ###############################################################################
 #### Generate prompts from the real corpus set with frequencies
@@ -67,6 +72,12 @@ done
 #### Run LLMs on the test set
 
 #### run Llama2 models
+# install llama2 dependencies from git@github.com:meta-llama/llama.git
+cd llms
+# some useful scripts to run the Llama model
+git clone git@github.com:AaltoSciComp/llm-examples.git
+cd ..
+
 for n_shot in 0 1 5 10
 do
     llama_v="7b"
@@ -107,6 +118,11 @@ do
 done
 
 #### run Poro-34B
+# download Poro-34B model
+cd llms
+git clone https://huggingface.co/LumiOpen/Poro-34B
+cd ..
+# set 'model' path to downloaded model
 model='/scratch/elec/morphogen/llm-morph-tests/llms/Poro-34B'
 cotornot=""
 temp=0.5
@@ -135,7 +151,7 @@ do
             --model $model_name \
             --sample-range $sample_range \
             --temperature $temp \
-            --out ${expt_dir}/data/prompts_${n_shot}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl
+            --out ${expt_dir}/llm_outputs/${n_shot}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl
     done
 done
 
@@ -151,8 +167,8 @@ do
     do
         python evaluate.py \
             --refs ${expt_dir}/data/refs.json \
-            --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp0.0.jsonl \
-            --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp0.0_${eval_type}.txt \
+            --preds ${expt_dir}/llm_outputs/${n_shot}shot_${model_name}_temp0.0.jsonl \
+            --out ${expt_dir}/results/results_${n_shot}shot_${model_name}_temp0.0_${eval_type}.txt \
             --eval-type $eval_type
     done
 done
@@ -164,10 +180,10 @@ for n_shot in 0 1 5 10
 do
     python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
-        --preds ${expt_dir}/data/prompts_${n_shot}shot_${model_name}_temp${temp}.jsonl \
+        --preds ${expt_dir}/llm_outputs/${n_shot}shot_${model_name}_temp${temp}.jsonl \
         --preds-include-prompt \
         --prompts ${expt_dir}/data/prompts_${n_shot}shot.json \
-        --out ${expt_dir}/results_${n_shot}shot_${model_name}_temp${temp}_${eval_type}.txt \
+        --out ${expt_dir}/results/results_${n_shot}shot_${model_name}_temp${temp}_${eval_type}.txt \
         --eval-type $eval_type
 done
 
@@ -184,9 +200,9 @@ do
         echo "Evaluating ${n_shot}shot${cotornot} ${model_name} ${sample_range}"
         python evaluate.py \
             --refs ${expt_dir}/data/refs.json \
-            --preds ${expt_dir}/data/prompts_${n_shot}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
+            --preds ${expt_dir}/llm_outputs/${n_shot}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
             --refs-range $sample_range \
-            --out ${expt_dir}/results_${n_shot}shot${cotornot}_${model_name}_temp${temp}_${sample_range}_${eval_type}.txt \
+            --out ${expt_dir}/results/results_${n_shot}shot${cotornot}_${model_name}_temp${temp}_${sample_range}_${eval_type}.txt \
             --cot $cotornot \
             --samples ${expt_dir}/data/samples.json \
             --eval-type $eval_type
@@ -240,11 +256,7 @@ do
     done
 done
 
-
-
-
 ##### other test data set
-#### preprocess json files
 datadir=data/fairseq/random2000
 test_set_datadir="expts/random2000/data"
 
@@ -252,12 +264,12 @@ for subset_size in 1000
 do
     for clstype in  "person" "number" "case"
     do
-        # python preprocess.py \
-        #     --wordforms-json ${test_set_datadir}/samples.json \
-        #     --omorstrings-json ${test_set_datadir}/omorstrings.json \
-        #     --output-dir $datadir \
-        #     --train-valid-test-split "0-0-100" \
-        #     --classtype $clstype
+        python preprocess.py \
+            --wordforms-json ${test_set_datadir}/samples.json \
+            --omorstrings-json ${test_set_datadir}/omorstrings.json \
+            --output-dir $datadir \
+            --train-valid-test-split "0-0-100" \
+            --classtype $clstype
 
         orig_datadir="data/fairseq/random${subset_size}"
 
@@ -266,7 +278,7 @@ do
             --target-lang $clstype \
             --path checkpoints/random${subset_size}/$clstype/checkpoint_best.pt \
             --test-set $datadir/test \
-            > data/fairseq/rnn-results/results_random${subset_size}_${clstype}_random2000_new.txt
+            > rnn-results/results_random${subset_size}_${clstype}_random2000_new.txt
     done
 done
 
@@ -278,10 +290,10 @@ done
 ### Accuracies plotted as a function of number of shots (Figure 1 in the CMCL 2024 paper)
 plottype=multiplot
 python visualise_results.py \
-    --result-files ${expt_dir}/results_*shot_gpt*-turbo_temp0.0_0-2000_accuracy.txt \
-        ${expt_dir}/results_*shot_{llama2_70b,poro_temp0.5}_accuracy.txt \
+    --result-files ${expt_dir}/results/results_*shot_gpt*-turbo_temp0.0_0-2000_accuracy.txt \
+        ${expt_dir}/results/results_*shot_{llama2_70b,poro_temp0.5}_accuracy.txt \
     --plottype $plottype \
-    --output ${expt_dir}/results_${plottype}_all_accuracies.png
+    --output ${expt_dir}/figures/results_${plottype}_all_accuracies.png
 
 
 #### Confusion matrices (Figures in Appendix B in the CMCL 2024 paper)
@@ -292,8 +304,8 @@ for model_name in gpt3.5-turbo gpt4-turbo
 do
     python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
-        --preds ${expt_dir}/data/prompts_{0,1,5,10}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
-        --out ${expt_dir}/all_confusions${cotornot}_${model_name}_${sample_range}_temp${temp} \
+        --preds ${expt_dir}/llm_outputs/{0,1,5,10}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
+        --out ${expt_dir}/figures/all_confusions${cotornot}_${model_name}_${sample_range}_temp${temp} \
         --eval-type many-confusions \
         --refs-range $sample_range
 done
@@ -303,8 +315,8 @@ for model_name in poro
 do
     python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
-        --preds ${expt_dir}/data/prompts_{0,1,5,10}shot_${model_name}_temp${temp}.jsonl \
-        --out ${expt_dir}/all_confusions_${model_name}_temp${temp} \
+        --preds ${expt_dir}/llm_outputs/{0,1,5,10}shot_${model_name}_temp${temp}.jsonl \
+        --out ${expt_dir}/figures/all_confusions_${model_name}_temp${temp} \
         --eval-type many-confusions \
         --preds-include-prompt \
         --prompts ${expt_dir}/data/prompts_{0,1,5,10}shot.json
@@ -314,8 +326,8 @@ for model_name in llama2_70b
 do
     python evaluate.py \
         --refs ${expt_dir}/data/refs.json \
-        --preds ${expt_dir}/data/prompts_{0,1,5,10}shot_${model_name}.jsonl\
-        --out ${expt_dir}/all_confusions_${model_name} \
+        --preds ${expt_dir}/llm_outputs/{0,1,5,10}shot_${model_name}.jsonl\
+        --out ${expt_dir}/figures/all_confusions_${model_name} \
         --eval-type many-confusions
 done
 
@@ -329,8 +341,8 @@ do
     do
         python evaluate.py \
             --refs ${expt_dir}/data/refs.json \
-            --preds ${expt_dir}/data/prompts_{0,10}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
-            --out ${expt_dir}/2confusion_matrices_${category}${cotornot}_${model_name}_${sample_range} \
+            --preds ${expt_dir}/llm_outputs/{0,10}shot${cotornot}_${model_name}_temp${temp}_${sample_range}.jsonl \
+            --out ${expt_dir}/figures/2confusion_matrices_${category}${cotornot}_${model_name}_${sample_range} \
             --eval-type two-${category}-confusion \
             --refs-range $sample_range
     done

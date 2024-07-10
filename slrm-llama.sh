@@ -37,6 +37,9 @@ fi
 # module load miniconda
 # source activate llamamodule
 
+# the script is from:
+# https://github.com/AaltoSciComp/llm-examples/tree/main/batch-inference-llama2
+
 echo "Running inference for $prompts"
 (set -x; torchrun --nproc_per_node $nprocs \
     llms/llm-examples/batch-inference-llama2/batch_inference.py \

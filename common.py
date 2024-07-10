@@ -13,11 +13,6 @@ FIN_NUM_CLASSES_UNIMORPH = {
     "PL": 1,
 }
 FIN_PERSON_CLASSES = {
-    # "yksikön ensimmäinen persoona": 0,
-    # "yksikön toinen persoona": 1,
-    # "monikon ensimmäinen persoona": 2,
-    # "monikon toinen persoona": 3,
-    # "kolmas persoona": 4,
     "1. persoonan yksikkö": 0,
     "2. persoonan yksikkö": 1,
     "1. persoonan monikko": 2,
@@ -158,27 +153,6 @@ CASE_LABELS = {
     "other": "other",
 }
 
-# CASE_LABELS_RAW = """ ABE-    abessiivi-       vajanto    -     abessive    -    talotta
-#     ABL-    ablatiivi-       ulkoeronto  -    ablative    -    talolta
-#     ADE-    adessiivi-       ulko-olento  -   adessive    -    talolla
-#     ALL-    allatiivi-       ulkotulento  -   allative    -    talolle
-#     ELA-    elatiivi-        sisäeronto   -   elative     -    talosta
-#     ESS-    essiivi-         olento      -    essive       -   talona
-#     GEN-    genetiivi-       omanto      -    genitive     -   talon
-#     ILL-    illatiivi-       sisätulento  -   illative     -   taloon
-#     INE-    inessiivi -      sisäolento   -   inessive      -  talossa
-#     NOM-    nominatiivi -    nimentö     -    nominative   -   talo
-#     PAR-    partitiivi  -    osanto      -    partitive    -   taloa
-#     TRA-    translatiivi  -  tulento    -     translative  -   taloksi"""
-#     # INS-    instruktiivi-    keinonto     -   instructive   -  taloin
-#     # COM-    komitatiivi -    seuranto     -   comitative   -   taloineen
-# CASE_LABELS = [label.split("-")[1].strip() for label in CASE_LABELS_RAW.split("\n")]
-# CASE_LABELS.append("other")
-
-# CASE_LABELS_TRANSLATED = [label.split("-")[0].strip().lower().capitalize() for label in CASE_LABELS_RAW.split("\n")]
-# CASE_LABELS_TRANSLATED.append("other")
-
-
 def parse_omorstring(omorstring):
     """Parse the omorstring and return the classes."""
     regex2key = {
@@ -189,11 +163,6 @@ def parse_omorstring(omorstring):
         "UPOS=": "upos",
     }
     classes = {}
-    # classes['lemma'] = re.search(r'(?<=WORD_ID=).*?(?=])', omorstring).group()
-    # classes['number'] = re.search(r'(?<=NUM=).*?(?=])', omorstring).group()
-    # classes['gcase'] = re.search(r'(?<=CASE=).*?(?=])', omorstring).group()
-    # classes['possessive'] = re.search(r'(?<=POSS=).*?(?=])', omorstring).group()
-    # classes['upos'] = re.search(r'(?<=UPOS=).*?(?=])', omorstring).group()
     for key, value in regex2key.items():
         if key in omorstring:
             classes[value] = re.search(rf'(?<={key}).*?(?=])', omorstring).group()
