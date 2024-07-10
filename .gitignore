@@ -7,7 +7,6 @@ omorfi
 turkish-treebanks
 
 # data
-omorfi-inflect/data
 inflected
 *.input
 *.ref
@@ -18,8 +17,15 @@ inflected
 *.plain
 lemma2feats*
 data/fairseq
+data/omorfi_noun_lexemes_filtered.txt
+data/omorfi_noun_lexemes_filtered_inflected_all.txt
+data/omorfi_noun_lexemes_filtered_inflected_all_filtered.txt
+data/omorfi_noun_lexemes_filtered_inflected_all_filtered_form2feats.txt
 
 # other
+data/grammar
+data/stats
+log
 __pycache__
 checkpoints
 evaluation
@@ -29,9 +35,3 @@ data/inflected_shortlist_nouns/
 data/form_freqs*
 data/omorfi_verb*
 data/omorfi_adj*
-
-# big files
-data/omorfi_noun_lexemes_filtered.txt
-data/omorfi_noun_lexemes_filtered_inflected_all.txt
-data/omorfi_noun_lexemes_filtered_inflected_all_filtered.txt
-data/omorfi_noun_lexemes_filtered_inflected_all_filtered_form2feats.txt
