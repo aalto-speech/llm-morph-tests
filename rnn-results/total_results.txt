@@ -1,0 +1,6 @@
+Results for dataset size 10000
+0.774
+Results for dataset size 50000
+0.821
+Results for dataset size 100000
+0.84

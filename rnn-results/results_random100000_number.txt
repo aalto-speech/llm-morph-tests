@@ -1,0 +1,4 @@
+| [input] dictionary: 40 types
+| [label] dictionary: 8 types
+| loading model from checkpoints/random100000/number/checkpoint_best.pt
+Accuracy: 0.8378837883788379
