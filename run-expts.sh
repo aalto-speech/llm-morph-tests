@@ -30,6 +30,15 @@ bash generate-wordlist-withtags-nouns.sh \
     data/omorfi_noun_lexemes_filtered_inflected.txt.0${filenumber} \
     temp${filenumber}
 
+# combine the results
+cat data/omorfi_noun_lexemes_filtered_inflected.txt* \
+    > data/omorfi_noun_lexemes_filtered_inflected_all.txt
+
+# filter out those forms that don't include all three features: CASE, NUM, POSS
+grep POSS= data/omorfi_noun_lexemes_filtered_inflected_all.txt \
+    | grep CASE= | grep NUM= \
+    >> data/omorfi_noun_lexemes_filtered_inflected_all_filtered.txt
+
     
 ###############################################################################
 #### Generate prompts from the real corpus set with frequencies

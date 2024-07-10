@@ -1,2 +1,0 @@
-SG-     yksikkö-    singular
-PL-     monikko-    plural
