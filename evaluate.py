@@ -1,6 +1,5 @@
 import argparse
 import json
-from freq_stats_from_conllu import read_freq_stats
 from common import NUM_LABELS, CASE_LABELS, PERSON_LABELS
 from sklearn import metrics
 
@@ -28,6 +27,17 @@ def read_files(pred_file, ref_file, prompt_file=None, refs_range=None):
         assert len(preds) == len(prompts), "Number of preds and prompts should be the same"
 
     return preds, refs, prompts
+
+
+def read_freq_stats(filename):
+    with open(filename, 'r', encoding='utf-8') as f:
+        freq_stats = {}
+        for line in f:
+            splitted = line.split()
+            if len(splitted) == 2:
+                lemma, freq = splitted
+                freq_stats[lemma] = int(freq)
+    return freq_stats
 
 
 def parse_pred_file_name(file_name):
